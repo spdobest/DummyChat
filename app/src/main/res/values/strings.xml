@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">Chat</string>
+    <string name="dont_have_account">Don\'t have account ? Register Now</string>
+    <string name="teacher">Teacher</string>
+    <string name="student">Student</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Password</string>
+    <string name="have_account">Already have Account ? Login</string>
+    <string name="hint_name">Name</string>
+    <string name="sub1">Subject1</string>
+    <string name="sub2">Subject2</string>
+    <string name="sub4">Subject4</string>
+    <string name="sub3">Subject3</string>
+    <string name="register">Register</string>
+    <string name="login">Login</string>
+    <string name="please_enter_your_password">Please ENter Password</string>
+    <string name="please_enter_your_valid_email">Please enter valid email i</string>
+    <string name="invalid_login">Invalid User name or Password</string>
+    <string name="please_select_studentorteacher">Please Select Student or Teacher</string>
+    <string name="please_select_subject">Please Select Subject</string>
+    <string name="no_internet">No Internet Connection</string>
+    <string name="ok">Okay</string>
+    <string name="hint_mobile">Mobile Number</string>
+</resources>

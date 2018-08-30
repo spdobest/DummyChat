@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:id="@+id/relativeLayoutRootChatText"
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dimen_1dp"
+                android:padding="@dimen/dimen_3dp"
+                xmlns:emojicon="http://schemas.android.com/apk/res-auto"
+                android:layout_gravity="center_vertical"
+
+    >
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/imageViewLeftArrowTextChat"
+        android:layout_width="@dimen/dimen_25dp"
+        android:layout_height="@dimen/dimen_25dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginEnd="-10dp"
+        android:layout_marginRight="-10dp"
+        android:layout_marginTop="@dimen/dimen_6dp"
+        android:visibility="gone"
+        app:srcCompat="@drawable/ic_chat_left_arrow"
+        />
+
+    <LinearLayout
+        android:id="@+id/linearLayoutChatBubble"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/imageViewLeftArrowTextChat"
+        android:layout_toLeftOf="@+id/imageViewRightArrowTextChat"
+        android:layout_toRightOf="@+id/imageViewLeftArrowTextChat"
+        android:layout_toStartOf="@+id/imageViewRightArrowTextChat"
+        android:background="@drawable/rounded_with_allside"
+        android:orientation="vertical"
+        android:padding="@dimen/dimen_3dp"
+        >
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/textViewUserNameChatText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:text="SPM"
+            android:textStyle="bold"
+            android:visibility="gone"
+            android:textSize="@dimen/dimen_12sp"
+            />
+
+        <hani.momanii.supernova_emoji_library.Helper.EmojiconTextView
+            android:id="@+id/textViewUserMessageChatText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/dimen_14sp"
+            android:text=""
+            android:layout_alignParentBottom="true"
+            android:textColor="@color/black"
+            emojicon:emojiconSize="60sp"
+            emojicon:emojiconUseSystemDefault="true"
+            />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/textViewUserTimeChatText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:text=""
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/dimen_8sp"
+            android:layout_gravity="right"
+            android:gravity="right"
+            />
+
+
+    </LinearLayout>
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/imageViewRightArrowTextChat"
+        android:layout_width="@dimen/dimen_20dp"
+        android:layout_height="@dimen/dimen_20dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="-10dp"
+        android:layout_marginStart="-10dp"
+        android:layout_marginTop="@dimen/dimen_6dp"
+        android:visibility="gone"
+        app:srcCompat="@drawable/ic_chat_right_arrow"
+        />
+</RelativeLayout>

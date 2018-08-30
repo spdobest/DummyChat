@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/dimen_8dp"
+    android:id="@+id/relativeLayoutRootMainChatlist"
+    android:layout_marginBottom="@dimen/dimen_0.5dp"
+    android:background="@color/white"
+    >
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/imageviewItemChatListMain"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:src="@mipmap/ic_launcher"
+        app:civ_border_color="@color/colorPrimary"
+        app:civ_border_width="1dp"
+        />
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/textViewNameChatList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/imageviewItemChatListMain"
+        android:layout_toRightOf="@+id/imageviewItemChatListMain"
+        android:layout_toStartOf="@+id/textViewTimeChatList"
+        android:layout_toLeftOf="@+id/textViewTimeChatList"
+        android:textSize="@dimen/dimen_16sp"
+        android:textStyle="bold"
+        android:layout_marginLeft="@dimen/dimen_10dp"
+        android:layout_marginStart="@dimen/dimen_10dp"
+        android:layout_marginRight="@dimen/dimen_10dp"
+        android:layout_marginEnd="@dimen/dimen_10dp"
+        android:layout_marginBottom="@dimen/dimen_5dp"
+        />
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/textViewLastChat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/imageviewItemChatListMain"
+        android:layout_toRightOf="@+id/imageviewItemChatListMain"
+        android:layout_below="@+id/textViewNameChatList"
+        android:layout_marginLeft="@dimen/dimen_10dp"
+        android:layout_marginStart="@dimen/dimen_10dp"
+        />
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/textViewTimeChatList"
+        android:layout_width="@dimen/dimen_100dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="@dimen/dimen_10dp"
+        android:textSize="@dimen/dimen_16sp"
+        android:text="12.50 AM"
+        />
+
+</RelativeLayout>

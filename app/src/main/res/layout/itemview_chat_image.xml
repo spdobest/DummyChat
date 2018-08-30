@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:id="@+id/relativeLayoutRootChatImage"
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dimen_1dp"
+                android:padding="@dimen/dimen_3dp"
+    xmlns:emojicon="http://schemas.android.com/apk/res-auto"
+                xmlns:tool="http://schemas.android.com/tools">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        >
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/imageViewLeftArrowChatImage"
+            android:layout_width="@dimen/dimen_25dp"
+            android:layout_height="@dimen/dimen_25dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="-10dp"
+            android:layout_marginRight="-10dp"
+            android:layout_marginTop="@dimen/dimen_6dp"
+            android:visibility="gone"
+            app:srcCompat="@drawable/ic_chat_left_arrow"
+            />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/imageViewLeftArrowChatImage"
+            android:layout_toLeftOf="@+id/imageViewRightArrowChatImage"
+            android:layout_toRightOf="@+id/imageViewLeftArrowChatImage"
+            android:layout_toStartOf="@+id/imageViewRightArrowChatImage"
+            android:background="@drawable/rounded_with_allside"
+            android:orientation="vertical"
+            android:padding="@dimen/dimen_3dp"
+            >
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/textViewUserNameChatImage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:text="Sibaprasad Mohanty"
+                android:textSize="@dimen/dimen_14sp"
+                android:textStyle="bold"
+                />
+            <RelativeLayout
+                android:id="@+id/relativeLayoutImageChat"
+                android:layout_width="@dimen/dimen_250dp"
+                android:layout_height="@dimen/dimen_200dp"
+                android:layout_marginTop="@dimen/dimen_5dp"
+                >
+
+                <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/imageViewChatImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:srcCompat="@mipmap/ic_launcher"
+                    />
+
+                <ProgressBar
+                    android:id="@+id/progressBarDownloadPercentageImage"
+                    android:layout_width="@dimen/dimen_60dp"
+                    android:layout_height="@dimen/dimen_60dp"
+                    android:layout_centerInParent="true"
+                    android:background="@drawable/circular_boarder_with_shadow"
+                    android:visibility="gone"
+                    tool:visibility="visible"
+                    />
+
+                <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/imageViewDownloadOrCancelImage"
+                    android:layout_width="@dimen/dimen_40dp"
+                    android:layout_height="@dimen/dimen_40dp"
+                    android:layout_centerInParent="true"
+                    app:srcCompat="@drawable/ic_download_button"
+                    android:padding="@dimen/dimen_5dp"
+                    android:visibility="gone"
+                    tool:visibility="visible"
+                    />
+
+
+            </RelativeLayout>
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/textViewUserTimeChatImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:textSize="@dimen/dimen_12sp"
+                android:layout_gravity="right"
+                android:gravity="right"
+                android:text="1234"
+                android:textStyle="bold"
+                />
+
+            <hani.momanii.supernova_emoji_library.Helper.EmojiconTextView
+                android:id="@+id/textViewUserMessageChatImage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/dimen_12sp"
+                android:text="Sibaprasad Mohantyasdasdkasjdhask daskjdhas kjdhas djashkd jkdhaks jdas kdjhaks jd asdjasdjahsk dashkdkasjdhak sjdhas kd"
+                android:layout_alignParentBottom="true"
+                android:background="#80000000"
+                android:textColor="@color/black"
+                emojicon:emojiconSize="28sp"/>
+
+        </LinearLayout>
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/imageViewRightArrowChatImage"
+            android:layout_width="@dimen/dimen_25dp"
+            android:layout_height="@dimen/dimen_25dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="-10dp"
+            android:layout_marginStart="-10dp"
+            android:layout_marginTop="@dimen/dimen_6dp"
+            android:visibility="gone"
+            app:srcCompat="@drawable/ic_chat_right_arrow"
+            />
+    </RelativeLayout>
+</RelativeLayout>
