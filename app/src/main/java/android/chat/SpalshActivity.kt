@@ -1,6 +1,9 @@
 package android.chat
 
+import android.chat.data.PreferenceManager
+import android.chat.ui.activity.HomeActivity
 import android.chat.ui.dialogFragment.LoginDialogFragment
+import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import com.google.firebase.FirebaseApp
@@ -13,8 +16,13 @@ class SpalshActivity : AppCompatActivity() {
 
         FirebaseApp.initializeApp(this)
 
-        var login:LoginDialogFragment = LoginDialogFragment()
-
-        login.show(supportFragmentManager,"LOgin")
+        if(PreferenceManager.getInstance(this).isUserLoggedIn){
+            startActivity(Intent(this,HomeActivity::class.java))
+            finish()
+        }
+        else {
+            var login: LoginDialogFragment = LoginDialogFragment()
+            login.show(supportFragmentManager, "Login")
+        }
     }
 }

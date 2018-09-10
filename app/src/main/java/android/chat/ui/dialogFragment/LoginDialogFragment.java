@@ -4,6 +4,7 @@ import android.chat.R;
 import android.chat.data.PreferenceManager;
 import android.chat.ui.activity.HomeActivity;
 import android.chat.ui.base.BaseDialogFragment;
+import android.chat.ui.base.BaseLoginRegisterDialogFragment;
 import android.chat.util.CommonUtils;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -32,7 +33,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
-public class LoginDialogFragment extends BaseDialogFragment implements View.OnClickListener {
+public class LoginDialogFragment extends BaseLoginRegisterDialogFragment implements View.OnClickListener {
 
 
     private static final String TAG = "LoginDialogFragment";
@@ -116,6 +117,13 @@ public class LoginDialogFragment extends BaseDialogFragment implements View.OnCl
                     else {
                         showProgressBar();
 
+                        if(radioStudent.isChecked()){
+                            PreferenceManager.getInstance(getActivity()).setIsStudent(true);
+                        }
+                        else{
+                            PreferenceManager.getInstance(getActivity()).setIsStudent(false);
+                        }
+
                         //authenticate user
                         auth.signInWithEmailAndPassword(email, password)
                                 .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
@@ -128,6 +136,9 @@ public class LoginDialogFragment extends BaseDialogFragment implements View.OnCl
                                             String teacherId = task.getResult().getUser().getUid();
                                             if (!TextUtils.isEmpty(teacherId)) {
                                                 PreferenceManager.getInstance(getActivity()).setUserId(teacherId);
+
+                                                PreferenceManager.getInstance(getActivity()).setUserLoggedIN(true);
+
                                                 getActivity().startActivity(new Intent(getActivity(), HomeActivity.class));
                                             }
                                         }

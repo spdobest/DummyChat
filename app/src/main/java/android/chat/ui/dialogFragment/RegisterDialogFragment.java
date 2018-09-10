@@ -7,6 +7,8 @@ import android.chat.model.teacherSIgnup.SignupModel;
 import android.chat.room.entity.User;
 import android.chat.ui.activity.HomeActivity;
 import android.chat.ui.base.BaseDialogFragment;
+import android.chat.ui.base.BaseLoginRegisterDialogFragment;
+import android.chat.util.ApplicationUtils;
 import android.chat.util.CommonUtils;
 import android.chat.util.Constants;
 import android.content.Intent;
@@ -14,14 +16,18 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.AppCompatTextView;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
@@ -35,7 +41,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 
-public class RegisterDialogFragment extends BaseDialogFragment implements View.OnClickListener {
+public class RegisterDialogFragment extends BaseLoginRegisterDialogFragment implements View.OnClickListener {
 
     private static final String TAG = "RegisterDialogFragment";
     private SharedPreferences prefs;
@@ -50,11 +56,7 @@ public class RegisterDialogFragment extends BaseDialogFragment implements View.O
     private RadioButton radioStudent;
     private RadioButton radioTeacher;
     private RadioGroup radioGroupStudentTeacher;
-    private RadioButton radioSub1;
-    private RadioButton radioSub2;
-    private RadioButton radioSub3;
-    private RadioButton radioSub4;
-    private RadioGroup radioGroupSubject;
+    private AppCompatTextView textViewSelectedSubjects;
     private AppCompatButton buttonRegister;
     private AppCompatTextView textViewHaveAccount;
     private FirebaseAuth auth;
@@ -62,6 +64,7 @@ public class RegisterDialogFragment extends BaseDialogFragment implements View.O
 
     private String loginType;
     private String selectedSubject;
+
 
 
     @Nullable
@@ -95,11 +98,7 @@ public class RegisterDialogFragment extends BaseDialogFragment implements View.O
         radioStudent = rootview.findViewById(R.id.radioStudent);
         radioTeacher = rootview.findViewById(R.id.radioTeacher);
         radioGroupStudentTeacher = rootview.findViewById(R.id.radioGroupStudentTeacher);
-        radioSub1 = rootview.findViewById(R.id.radioSub1);
-        radioSub2 = rootview.findViewById(R.id.radioSub2);
-        radioSub3 = rootview.findViewById(R.id.radioSub3);
-        radioSub4 = rootview.findViewById(R.id.radioSub4);
-        radioGroupSubject = rootview.findViewById(R.id.radioGroupSubject);
+        textViewSelectedSubjects = rootview.findViewById(R.id.textViewSelectedSubjects);
         buttonRegister = rootview.findViewById(R.id.buttonRegister);
         textViewHaveAccount = rootview.findViewById(R.id.textViewHaveAccount);
 
@@ -110,6 +109,7 @@ public class RegisterDialogFragment extends BaseDialogFragment implements View.O
     protected void setListeners() {
         buttonRegister.setOnClickListener(this);
         textViewHaveAccount.setOnClickListener(this);
+        textViewSelectedSubjects.setOnClickListener(this);
         radioGroupStudentTeacher.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
@@ -120,43 +120,12 @@ public class RegisterDialogFragment extends BaseDialogFragment implements View.O
                 }
             }
         });
-
-        radioGroupSubject.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup radioGroup, int i) {
-
-                if (TextUtils.isEmpty(loginType)) {
-                    radioGroupSubject.clearCheck();
-                    Toast.makeText(getActivity(), "Please Select Student or Teacher", Toast.LENGTH_SHORT).show();
-                } else {
-                    switch (i) {
-                        case 0:
-                            selectedSubject = getString(R.string.sub1);
-                            break;
-
-                        case 1:
-                            selectedSubject = getString(R.string.sub2);
-                            break;
-
-                        case 2:
-                            selectedSubject = getString(R.string.sub3);
-                            break;
-
-                        case 3:
-                            selectedSubject = getString(R.string.sub4);
-                            break;
-                    }
-                }
-            }
-        });
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.buttonRegister:
-
-
                 if (!CommonUtils.isInternetAvailable(getActivity())) {
                     showError(getString(R.string.no_internet));
                 } else {
@@ -181,6 +150,7 @@ public class RegisterDialogFragment extends BaseDialogFragment implements View.O
                                         //checking if success
                                         if (task.isSuccessful()) {
                                             onAuthSuccess(task.getResult().getUser());
+                                            PreferenceManager.getInstance(getActivity()).setUserLoggedIN(true);
                                         } else {
                                             //display some message here
                                             Toast.makeText(getActivity(), task.getException().toString(), Toast.LENGTH_LONG).show();
@@ -196,6 +166,9 @@ public class RegisterDialogFragment extends BaseDialogFragment implements View.O
             case R.id.textViewHaveAccount:
                 new LoginDialogFragment().show(getChildFragmentManager(), "Login");
                 break;
+            case R.id.textViewSelectedSubjects :
+                showSubjectBottomsheet();
+                break;
         }
     }
 
@@ -206,29 +179,36 @@ public class RegisterDialogFragment extends BaseDialogFragment implements View.O
     }
 
     private void writeNewUser(String userId, String name, String email, String number) {
+        String subjectList = ApplicationUtils.getStringWithComma(getSelectedSubjectList());
         TeacherData teacherData = new TeacherData(userId,
                 name,
                 email,
                 number,
-                "",
+                subjectList,
                 edittextPassword.getText().toString().trim()
         );
 
         if(radioStudent.isChecked()){
-            SignupModel signupModel = new SignupModel(userId, name, email, number);
+            SignupModel signupModel = new SignupModel(userId, name, email, number,subjectList);
             signupModel.setUserid(userId);
             signupModel.setName(name);
             signupModel.setEmail(email);
             signupModel.setNumber(number);
-            mDatabase.child(Constants.FirebaseConstants.TABLE_TEACHER).child(userId).setValue(signupModel);
+            signupModel.setSubjectList(subjectList);
+
+            mDatabase.child(Constants.FirebaseConstants.TABLE_STUDENT).child(userId).setValue(signupModel);
+
+            PreferenceManager.getInstance(getActivity()).setIsStudent(true);
         }
         else{
-            SignupModel signupModel = new SignupModel(userId, name, email, number);
+            SignupModel signupModel = new SignupModel(userId, name, email, number,subjectList);
             signupModel.setUserid(userId);
             signupModel.setName(name);
             signupModel.setEmail(email);
             signupModel.setNumber(number);
-            mDatabase.child(Constants.FirebaseConstants.TABLE_STUDENT).child(userId).setValue(signupModel);
+            signupModel.setSubjectList(subjectList);
+            mDatabase.child(Constants.FirebaseConstants.TABLE_TEACHER).child(userId).setValue(signupModel);
+            PreferenceManager.getInstance(getActivity()).setIsStudent(false);
         }
 
 
@@ -245,4 +225,5 @@ public class RegisterDialogFragment extends BaseDialogFragment implements View.O
         String json = gson.toJson("j");
         // prefs.edit().putString(Constants.USER_MODEL,json).commit();
     }
+
 }

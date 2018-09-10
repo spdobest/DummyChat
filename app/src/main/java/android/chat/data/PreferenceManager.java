@@ -71,6 +71,9 @@ public class PreferenceManager {
         String TRACK_CONFIRM ="orderConfirm" ;
         String AppliedMin="MIni";
         String AppliedMax ="Maxi" ;
+
+        String IS_STUDENT ="isStudent" ;
+        String IS_LOGGED_IN ="isLoggedIn" ;
     }
 
     private static PreferenceManager sInstance;
@@ -288,14 +291,21 @@ public class PreferenceManager {
 
 
 
+    public void setIsStudent(boolean isStudent) {
+        mEditor.putBoolean( Keys.IS_STUDENT, isStudent).commit();
+    }
+    public boolean getIsStudent() {
+        return mPrefs.getBoolean( Keys.IS_STUDENT,false);
+    }
+
+
+
     public void setAppliedMin(int min) {
         mEditor.putInt( Keys.AppliedMin, min).commit();
     }
     public int getAppliedMin() {
         return mPrefs.getInt( Keys.AppliedMin, 0);
     }
-
-
 
 
     public void setAppliedMax(int max) {

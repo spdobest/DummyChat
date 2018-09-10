@@ -22,11 +22,23 @@ public class Constants {
 	public static final String COLON = " : ";
 	public static final String SELECT_ALL = "Select All";
 
+	public static final short 	TAB_STUDENT  	= 		1;
+	public static final short   TAB_TEACHER 	=		2;
+	public static final short   TAB_SUBJECT 	=		3;
+
 	public static final String FIREBASE_URL1 = /*"https://MyBasket.firebaseio.com/";*/ "https://mybasket.firebaseIO.com";
 	public static final String FIREBASE_URL =  "https://my-basket-50396.firebaseio.com/";
 	// constants for screens
 	public static final int FFROM_CHECKOUTSCREEN = 1;
 	public static final int FFROM_OTHER_SCREEN = 2;
+
+	/**
+	 * ALL SUBJECTS
+	 */
+	public static final String SUBJECT_ANDROID = "Android";
+	public static final String SUBJECT_IPHONE = "Iphone";
+	public static final String SUBJECT_JAVA = "Java";
+	public static final String SUBJECT_PYTHON = "Python";
 
 	public interface HeaderKeys {
 		String API_VERSION_CODE = "X-VERSION-CODE";
@@ -55,9 +67,12 @@ public class Constants {
 		String USER_NAME = "username";
 		String USER_ID = "user_id";
 		String EMAIL = "email";
+		String TAB_TYPE = "tabType";
 
-		public String LIST_IMAGE = "list_images";
-		public String POSITION = "position";
+		String LIST_IMAGE = "list_images";
+		String POSITION = "position";
+		String IS_SUBJECT_CHAT = "isSubject";
+		String SUBJECT_CHAT = "Subject";
 	}
 
 	public interface OrderStatus {
@@ -163,10 +178,15 @@ public class Constants {
 		int OTHER = 13;
 	}
 	public interface FirebaseConstants{
-		public static final String TABLE_USER = "users";
-		public static final String TABLE_CHAT = "chat";
-		public static final String TABLE_STUDENT = "student";
-		public static final String TABLE_TEACHER = "Teacher";
+		public static final String TABLE_USER 		= 	"users";
+		public static final String TABLE_CHAT 		= 	"chat";
+		public static final String TABLE_STUDENT 	= 	"student";
+		public static final String TABLE_TEACHER 	= 	"Teacher";
+		// SUBJECT
+		public static final String TABLE_ANDROID 	= 	"Android";
+		public static final String TABLE_IPHONE 	= 	"Iphone";
+		public static final String TABLE_JAVA 		= 	"Java";
+		public static final String TABLE_PYTHON 	= 	"Python";
 
 		public static final String FIREBASE_IMAGESTORAGE = "gs://my-chat-f5ef1.appspot.com";
 	}

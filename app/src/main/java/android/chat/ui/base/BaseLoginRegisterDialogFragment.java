@@ -10,7 +10,6 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomSheetDialog;
@@ -23,13 +22,16 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.ButterKnife;
 
-public abstract class BaseDialogFragment extends DialogFragment{
+public abstract class BaseLoginRegisterDialogFragment extends DialogFragment implements SubjectSelectListener {
+
 
     private ProgressBar mProgressBar;
     private AppCompatImageView imageViewBack;
@@ -37,6 +39,8 @@ public abstract class BaseDialogFragment extends DialogFragment{
     private int mLayoutId;
     protected String mRequestTag;
     private ConstraintLayout constraintLayoutRoot;
+    public List<String> stringList = new ArrayList<>();
+
 
 
     public SubjectListAdapter subjectListAdapter;
@@ -114,6 +118,35 @@ public abstract class BaseDialogFragment extends DialogFragment{
         }
     }
 
+    private BottomSheetDialog bottomSheetDialog;
+    public void showSubjectBottomsheet() {
+        RecyclerView recyclerView;
 
+        if (bottomSheetDialog == null)
+            bottomSheetDialog = new BottomSheetDialog(getActivity());
+
+        bottomSheetDialog.setContentView(R.layout.bottomsheet_subjects);
+        recyclerView = bottomSheetDialog.findViewById(R.id.recyclerViewSubjects);
+
+        subjectListAdapter = new SubjectListAdapter(getActivity(), ApplicationUtils.getSubjectList(),this);
+        assert recyclerView != null;
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setAdapter(subjectListAdapter);
+
+
+        bottomSheetDialog.show();
+
+    }
+
+    @Override
+    public void onSubjectSelect(String name, boolean isChecked) {
+        if(isChecked){
+            stringList.add(name);
+        }
+    }
+
+    public List<String> getSelectedSubjectList(){
+        return stringList;
+    }
 
 }

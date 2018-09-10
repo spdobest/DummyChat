@@ -205,7 +205,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 					                           cursor.getString( cursor.getColumnIndex( DatabaseConstants.OTHER_PATH ) ),
 					                           cursor.getString( cursor.getColumnIndex( DatabaseConstants.CURRENT_TIME_MILLIES ) ),
 					                           cursor.getString( cursor.getColumnIndex( DatabaseConstants.CHAT_KEY ) ),
-					                           cursor.getString( cursor.getColumnIndex( DatabaseConstants.CHAT_DATE ) )
+					                           cursor.getString( cursor.getColumnIndex( DatabaseConstants.CHAT_DATE ) ),
+												cursor.getInt( cursor.getColumnIndex( DatabaseConstants.CHAT_DATE ) )
+
 					);
 					mediaList.add( modelChat );
 
@@ -252,7 +254,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				                           cursor.getString( cursor.getColumnIndex( DatabaseConstants.OTHER_PATH ) ),
 				                           cursor.getString( cursor.getColumnIndex( DatabaseConstants.CURRENT_TIME_MILLIES ) ),
 				                           cursor.getString( cursor.getColumnIndex( DatabaseConstants.CHAT_KEY ) ),
-				                           cursor.getString( cursor.getColumnIndex( DatabaseConstants.CHAT_DATE ) )
+				                           cursor.getString( cursor.getColumnIndex( DatabaseConstants.CHAT_DATE ) ),
+						cursor.getInt( cursor.getColumnIndex( DatabaseConstants.IS_ACCEPTED ) )
 				);
 				mediaList.add( modelChat );
 
@@ -301,7 +304,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 					                           cursor.getString( cursor.getColumnIndex( DatabaseConstants.OTHER_PATH ) ),
 					                           cursor.getString( cursor.getColumnIndex( DatabaseConstants.CURRENT_TIME_MILLIES ) ),
 					                           cursor.getString( cursor.getColumnIndex( DatabaseConstants.CHAT_KEY ) ),
-					                           cursor.getString( cursor.getColumnIndex( DatabaseConstants.CHAT_DATE ) )
+					                           cursor.getString( cursor.getColumnIndex( DatabaseConstants.CHAT_DATE ) ),
+							cursor.getInt( cursor.getColumnIndex( DatabaseConstants.IS_ACCEPTED ) )
 					);
 					mediaList.add( modelChat );
 
@@ -345,7 +349,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				                           cursor.getString( cursor.getColumnIndex( DatabaseConstants.OTHER_PATH ) ),
 				                           cursor.getString( cursor.getColumnIndex( DatabaseConstants.CURRENT_TIME_MILLIES ) ),
 				                           cursor.getString( cursor.getColumnIndex( DatabaseConstants.CHAT_KEY ) ),
-				                           cursor.getString( cursor.getColumnIndex( DatabaseConstants.CHAT_DATE ) )
+				                           cursor.getString( cursor.getColumnIndex( DatabaseConstants.CHAT_DATE ) ),
+						cursor.getInt( cursor.getColumnIndex( DatabaseConstants.IS_ACCEPTED ) )
 				);
 
 			}
@@ -484,6 +489,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		static String CURRENT_TIME_MILLIES = "currenttimeinmillies";
 		static String CHAT_KEY             = "chat_key";
 		static String CHAT_DATE            = "CHAT_DATE";
+		static String IS_ACCEPTED            = "isAccepted";
 
 		static String TABLE_USER = "TableUser";
 		static String USER_NAME  = "userName";

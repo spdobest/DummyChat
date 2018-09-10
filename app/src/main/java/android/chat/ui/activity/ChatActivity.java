@@ -134,6 +134,8 @@ public class ChatActivity extends BaseActivity implements ChildEventListener, Vi
 	private int[] chatCount        = { 20, 50, 100, };
 	private int   loadMorePosition = 0;
 
+	boolean isSUbjectChat;
+
 	public static Bitmap getBitmapFromLocalPath( String path, int sampleSize ) {
 		try {
 			BitmapFactory.Options options = new BitmapFactory.Options();
@@ -215,10 +217,18 @@ public class ChatActivity extends BaseActivity implements ChildEventListener, Vi
 
 
 		Intent intentBundle = getIntent();
-		if(intentBundle.hasExtra( Constants.BundleKeys.USER_NAME ))
-			userNameRecicver = intentBundle.getExtras().getString(  Constants.BundleKeys.USER_NAME );
-		if(intentBundle.hasExtra( Constants.BundleKeys.USER_ID ))
-			userIdRecicver = intentBundle.getExtras().getString(  Constants.BundleKeys.USER_ID );
+		if(intentBundle!=null) {
+			if (intentBundle.hasExtra(Constants.BundleKeys.USER_NAME)) {
+				userNameRecicver = intentBundle.getExtras().getString(Constants.BundleKeys.USER_NAME);
+			}
+			if (intentBundle.hasExtra(Constants.BundleKeys.USER_ID)) {
+				userIdRecicver = intentBundle.getExtras().getString(Constants.BundleKeys.USER_ID);
+			}
+
+			if (intentBundle.hasExtra(Constants.BundleKeys.IS_SUBJECT_CHAT)) {
+				isSUbjectChat = intentBundle.getExtras().getBoolean(Constants.BundleKeys.IS_SUBJECT_CHAT);
+			}
+		}
 
 		strName = PreferenceManager.getInstance( this ).getUserName();
 		userId = PreferenceManager.getInstance( this ).getUserId();
@@ -386,12 +396,12 @@ public class ChatActivity extends BaseActivity implements ChildEventListener, Vi
 						Log.i( TAG, "onClick: time  " + databaseHelper.getLastChat( ChatActivity.this ).message );
 						if ( !CommonUtils.getCurrentDateAndTime().contains( getTimeFromDate( databaseHelper.getLastChat( ChatActivity.this ).chatDate ) ) ) {
 
-							modelChat = new ModelChat( userId, userIdRecicver, strName, "", CommonUtils.getCurrentDate(), ChatAdapter.ROW_TYPE_DATE, "", 0, 0, "", System.currentTimeMillis() + "", "", CommonUtils.getCurrentDate() );
+							modelChat = new ModelChat( userId, userIdRecicver, strName, "", CommonUtils.getCurrentDate(), ChatAdapter.ROW_TYPE_DATE, "", 0, 0, "", System.currentTimeMillis() + "", "", CommonUtils.getCurrentDate() ,0);
 							listModelChat.add( modelChat );
 							databaseHelper.insertChat( ChatActivity.this, modelChat, PreferenceManager.getInstance( ChatActivity.this ).getIsChatExist() );
 
 
-							modelChat = new ModelChat( userId, userIdRecicver, strName, message, CommonUtils.getCurrentTime(), ChatAdapter.ROW_TYPE_TEXT, "", 0, 0, "", System.currentTimeMillis() + "", "", CommonUtils.getCurrentDate() );
+							modelChat = new ModelChat( userId, userIdRecicver, strName, message, CommonUtils.getCurrentTime(), ChatAdapter.ROW_TYPE_TEXT, "", 0, 0, "", System.currentTimeMillis() + "", "", CommonUtils.getCurrentDate(),0 );
 							databaseHelper.insertChat( ChatActivity.this, modelChat, PreferenceManager.getInstance( ChatActivity.this ).getIsChatExist() );
 							listModelChat.add( modelChat );
 
@@ -402,7 +412,7 @@ public class ChatActivity extends BaseActivity implements ChildEventListener, Vi
 
 						}
 						else {
-							modelChat = new ModelChat( userId, userIdRecicver, strName, message, CommonUtils.getCurrentTime(), ChatAdapter.ROW_TYPE_TEXT, "", 1, 1, "", System.currentTimeMillis() + "", "", CommonUtils.getCurrentDate() );
+							modelChat = new ModelChat( userId, userIdRecicver, strName, message, CommonUtils.getCurrentTime(), ChatAdapter.ROW_TYPE_TEXT, "", 1, 1, "", System.currentTimeMillis() + "", "", CommonUtils.getCurrentDate(),0 );
 							databaseHelper.insertChat( ChatActivity.this, modelChat, PreferenceManager.getInstance( ChatActivity.this ).getIsChatExist() );
 							listModelChat.add( modelChat );
 							if ( CommonUtils.isInternetAvailable( this ) ) {
@@ -413,12 +423,12 @@ public class ChatActivity extends BaseActivity implements ChildEventListener, Vi
 						chatAdapter.notifyDataSetChanged();
 					}
 					else {
-						modelChat = new ModelChat( userId, userIdRecicver, strName, "", CommonUtils.getCurrentDate(), ChatAdapter.ROW_TYPE_DATE, "", 0, 0, "", System.currentTimeMillis() + "", "", CommonUtils.getCurrentDate() );
+						modelChat = new ModelChat( userId, userIdRecicver, strName, "", CommonUtils.getCurrentDate(), ChatAdapter.ROW_TYPE_DATE, "", 0, 0, "", System.currentTimeMillis() + "", "", CommonUtils.getCurrentDate(),0 );
 						Log.i( TAG, "onClick: " + modelChat.chatDate );
 						databaseHelper.insertChat( ChatActivity.this, modelChat, PreferenceManager.getInstance( ChatActivity.this ).getIsChatExist() );
 						listModelChat.add( modelChat );
 
-						modelChat = new ModelChat( userId, userIdRecicver, strName, message, CommonUtils.getCurrentTime(), ChatAdapter.ROW_TYPE_TEXT, "", 0, 0, "", System.currentTimeMillis() + "", "", CommonUtils.getCurrentDate() );
+						modelChat = new ModelChat( userId, userIdRecicver, strName, message, CommonUtils.getCurrentTime(), ChatAdapter.ROW_TYPE_TEXT, "", 0, 0, "", System.currentTimeMillis() + "", "", CommonUtils.getCurrentDate(),0 );
 						Log.i( TAG, "onClick: " + modelChat.chatDate );
 						databaseHelper.insertChat( ChatActivity.this, modelChat, PreferenceManager.getInstance( ChatActivity.this ).getIsChatExist() );
 						listModelChat.add( modelChat );
@@ -562,7 +572,7 @@ public class ChatActivity extends BaseActivity implements ChildEventListener, Vi
 	}
 
 	public void sendNewChat( String userId, String username, String message, String time, int rowType, String pathOrUrl, int isDownloaded, int isSent, String extraData, String currentTimeinMillies ) {
-		ModelChat modelChat = new ModelChat( userId,userIdRecicver, username, message, time, rowType, pathOrUrl, isDownloaded, isSent, extraData, currentTimeinMillies, "", CommonUtils.getCurrentDate() );
+		ModelChat modelChat = new ModelChat( userId,userIdRecicver, username, message, time, rowType, pathOrUrl, isDownloaded, isSent, extraData, currentTimeinMillies, "", CommonUtils.getCurrentDate(),0 );
 		databaseHelper.insertChat( ChatActivity.this, modelChat, PreferenceManager.getInstance( ChatActivity.this ).getIsChatExist() );
 
 //			databaseChatReference.child( Constants.FirebaseConstants.TABLE_CHAT ).setValue( modelChat );
@@ -727,12 +737,12 @@ public class ChatActivity extends BaseActivity implements ChildEventListener, Vi
 			ModelChat modelChat = null;
 			if ( !CommonUtils.getCurrentDateAndTime().contains( getTimeFromDate( databaseHelper.getLastChat( ChatActivity.this ).chatDate ) ) ) {
 
-				modelChat = new ModelChat( userId, userIdRecicver, strName, message, CommonUtils.getCurrentDate(), ChatAdapter.ROW_TYPE_DATE, "", 0, 0, "", System.currentTimeMillis() + "", "", CommonUtils.getCurrentDateAndTime() );
+				modelChat = new ModelChat( userId, userIdRecicver, strName, message, CommonUtils.getCurrentDate(), ChatAdapter.ROW_TYPE_DATE, "", 0, 0, "", System.currentTimeMillis() + "", "", CommonUtils.getCurrentDateAndTime(),0 );
 				listModelChat.add( modelChat );
 				databaseHelper.insertChat( ChatActivity.this, modelChat, PreferenceManager.getInstance( ChatActivity.this ).getIsChatExist() );
 
 
-				modelChat = new ModelChat( userId, userIdRecicver, strName, message, CommonUtils.getCurrentTime(), rowType, path, 1, 0, "", System.currentTimeMillis() + "", "", CommonUtils.getCurrentDateAndTime() );
+				modelChat = new ModelChat( userId, userIdRecicver, strName, message, CommonUtils.getCurrentTime(), rowType, path, 1, 0, "", System.currentTimeMillis() + "", "", CommonUtils.getCurrentDateAndTime(),0 );
 				databaseHelper.insertChat( ChatActivity.this, modelChat, PreferenceManager.getInstance( ChatActivity.this ).getIsChatExist() );
 				listModelChat.add( modelChat );
 
@@ -743,7 +753,7 @@ public class ChatActivity extends BaseActivity implements ChildEventListener, Vi
 
 			}
 			else {
-				modelChat = new ModelChat( userId, userIdRecicver, strName, message, CommonUtils.getCurrentTime(), rowType, path, 1, 1, "", System.currentTimeMillis() + "", "", CommonUtils.getCurrentDateAndTime() );
+				modelChat = new ModelChat( userId, userIdRecicver, strName, message, CommonUtils.getCurrentTime(), rowType, path, 1, 1, "", System.currentTimeMillis() + "", "", CommonUtils.getCurrentDateAndTime() ,0);
 				databaseHelper.insertChat( ChatActivity.this, modelChat, PreferenceManager.getInstance( ChatActivity.this ).getIsChatExist() );
 
 				listModelChat.add( modelChat );
@@ -761,12 +771,12 @@ public class ChatActivity extends BaseActivity implements ChildEventListener, Vi
 			ModelChat modelChat = null;
 			if ( !CommonUtils.getCurrentDateAndTime().contains( getTimeFromDate( databaseHelper.getLastChat( ChatActivity.this ).chatDate ) ) ) {
 
-				modelChat = new ModelChat( userId, userIdRecicver, strName, message, CommonUtils.getCurrentDate(), ChatAdapter.ROW_TYPE_DATE, "", 0, 0, "", System.currentTimeMillis() + "", "", CommonUtils.getCurrentDateAndTime() );
+				modelChat = new ModelChat( userId, userIdRecicver, strName, message, CommonUtils.getCurrentDate(), ChatAdapter.ROW_TYPE_DATE, "", 0, 0, "", System.currentTimeMillis() + "", "", CommonUtils.getCurrentDateAndTime(),0 );
 				listModelChat.add( modelChat );
 				databaseHelper.insertChat( ChatActivity.this, modelChat, PreferenceManager.getInstance( ChatActivity.this ).getIsChatExist() );
 
 
-				modelChat = new ModelChat( userId, userIdRecicver, strName, message, CommonUtils.getCurrentTime(), rowType, path, 1, 0, "", System.currentTimeMillis() + "", "", CommonUtils.getCurrentDateAndTime() );
+				modelChat = new ModelChat( userId, userIdRecicver, strName, message, CommonUtils.getCurrentTime(), rowType, path, 1, 0, "", System.currentTimeMillis() + "", "", CommonUtils.getCurrentDateAndTime(),0 );
 				databaseHelper.insertChat( ChatActivity.this, modelChat, PreferenceManager.getInstance( ChatActivity.this ).getIsChatExist() );
 				listModelChat.add( modelChat );
 
@@ -777,7 +787,7 @@ public class ChatActivity extends BaseActivity implements ChildEventListener, Vi
 
 			}
 			else {
-				modelChat = new ModelChat( userId, userIdRecicver, strName, message, CommonUtils.getCurrentTime(), rowType, path, 1, 1, "", System.currentTimeMillis() + "", "", CommonUtils.getCurrentDateAndTime() );
+				modelChat = new ModelChat( userId, userIdRecicver, strName, message, CommonUtils.getCurrentTime(), rowType, path, 1, 1, "", System.currentTimeMillis() + "", "", CommonUtils.getCurrentDateAndTime(),0 );
 				databaseHelper.insertChat( ChatActivity.this, modelChat, PreferenceManager.getInstance( ChatActivity.this ).getIsChatExist() );
 
 				listModelChat.add( modelChat );

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/rootLayout_bottomsheet"
+    >
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerViewSubjects"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/buttonSubmitSubject"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:background="@drawable/rounded_button"
+        android:layout_margin="@dimen/dimen_10dp"
+        android:text="@string/submit"
+        app:layout_constraintTop_toBottomOf="@+id/recyclerViewSubjects" />
+
+</android.support.constraint.ConstraintLayout>
