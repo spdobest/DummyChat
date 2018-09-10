@@ -237,7 +237,9 @@ public class HomeTabFragment extends Fragment implements StudentTeacherOrSubject
                     });
         }
         else{
-            homeCommonAdapter.notifyDataSetChanged();
+            homeCommonAdapter = new HomeCommonAdapter(getActivity(),Constants.TAB_STUDENT,this);
+            homeCommonAdapter.setStudentOrData(listStudents);
+            recyclerViewUser.setAdapter(homeCommonAdapter);
         }
 
     }

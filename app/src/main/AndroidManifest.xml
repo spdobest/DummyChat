@@ -28,6 +28,8 @@
         <activity android:name=".ui.activity.HomeActivity"
             android:theme="@style/AppThemeHome"
             ></activity>
+
+        <activity android:name=".ui.activity.SubjectChatActivity"/>
     </application>
 
 </manifest>
