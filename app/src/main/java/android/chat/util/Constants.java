@@ -22,9 +22,13 @@ public class Constants {
 	public static final String COLON = " : ";
 	public static final String SELECT_ALL = "Select All";
 
-	public static final short 	TAB_STUDENT  	= 		1;
-	public static final short   TAB_TEACHER 	=		2;
-	public static final short   TAB_SUBJECT 	=		3;
+	public static final  int PICK_PDF_CODE = 2342;
+
+	public static final short 	TAB_CONTACTS  	= 		1;
+	public static final short   TAB_CHAT	 	=		2;
+
+	public static final String   TAB_NAME_CONTACT     	=		"Contacts";
+	public static final String   TAB_NAME_CHAT 			=		"Chat";
 
 	public static final String FIREBASE_URL1 = /*"https://MyBasket.firebaseio.com/";*/ "https://mybasket.firebaseIO.com";
 	public static final String FIREBASE_URL =  "https://my-basket-50396.firebaseio.com/";
@@ -73,6 +77,9 @@ public class Constants {
 		String POSITION = "position";
 		String IS_SUBJECT_CHAT = "isSubject";
 		String SUBJECT_CHAT = "Subject";
+		String RECIEVER_NAME = "recieverName";
+		String RECIEVER_ID = "recieverId";
+		String GROUP_NAME = "groupName";
 	}
 
 	public interface OrderStatus {
@@ -189,5 +196,8 @@ public class Constants {
 		public static final String TABLE_PYTHON 	= 	"Python";
 
 		public static final String FIREBASE_IMAGESTORAGE = "gs://my-chat-f5ef1.appspot.com";
+
+		public static final String STORAGE_PATH_UPLOADS = "uploads/";
+		public static final String DATABASE_PATH_UPLOADS = "uploads";
 	}
 }

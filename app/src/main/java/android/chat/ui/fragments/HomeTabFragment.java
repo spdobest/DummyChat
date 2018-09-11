@@ -4,10 +4,12 @@ package android.chat.ui.fragments;
 import android.chat.R;
 import android.chat.adapter.HomeCommonAdapter;
 import android.chat.data.DatabaseHelper;
+import android.chat.data.PreferenceManager;
 import android.chat.listeners.StudentTeacherOrSubjectListener;
-import android.chat.model.teacherSIgnup.SignupModel;
+import android.chat.model.UserOrGroupDetails;
 import android.chat.ui.activity.ChatActivity;
 import android.chat.ui.activity.SubjectChatActivity;
+import android.chat.util.ApplicationUtils;
 import android.chat.util.Constants;
 import android.content.Intent;
 import android.os.Bundle;
@@ -54,10 +56,11 @@ public class HomeTabFragment extends Fragment implements StudentTeacherOrSubject
 
 
     // data for adapter
-    private List<SignupModel>   listStudents= new ArrayList<>();
-    private List<SignupModel>   listTeachers = new ArrayList<>();
-    private List<String>        listSubject = new ArrayList<>();
+    private List<UserOrGroupDetails>   listStudents= new ArrayList<>();
+    private List<UserOrGroupDetails>   listTeachers = new ArrayList<>();
     private HomeCommonAdapter homeCommonAdapter;
+
+    List<String> listSubjects = new ArrayList<>();
 
     private short tab_type = 0;
 
@@ -71,6 +74,9 @@ public class HomeTabFragment extends Fragment implements StudentTeacherOrSubject
 
         databaseChatReferenceStudent = firebaseDatabase.getReference(Constants.FirebaseConstants.TABLE_STUDENT);
         databaseReferenceTeacher = firebaseDatabase.getReference(Constants.FirebaseConstants.TABLE_TEACHER);
+
+        listSubjects = ApplicationUtils.getListSeparedByComma(PreferenceManager.getInstance(getActivity()).getSubjectList());
+
     }
 
     @Nullable
@@ -120,7 +126,7 @@ public class HomeTabFragment extends Fragment implements StudentTeacherOrSubject
 
         switch (tab_type){
 
-            case Constants.TAB_SUBJECT :
+           /* case Constants.TAB_SUBJECT :
                 if(listSubject.size()==0) {
                     listSubject.add("Android");
                     listSubject.add("Iphone");
@@ -128,16 +134,16 @@ public class HomeTabFragment extends Fragment implements StudentTeacherOrSubject
                     listSubject.add("Python");
                 }
 
-                    homeCommonAdapter = new HomeCommonAdapter(getActivity(),Constants.TAB_SUBJECT,this);
+                    homeCommonAdapter = new HomeCommonAdapter(getActivity(),Constants.TAB_CONTACTS,this);
                     homeCommonAdapter.setSubjectData(listSubject);
                     recyclerViewUser.setAdapter(homeCommonAdapter);
 
 
-                break;
-                case Constants.TAB_TEACHER:
+                break;*/
+                case Constants.TAB_CHAT:
                    setupTeacherList();
                     break;
-            case Constants.TAB_STUDENT :
+            case Constants.TAB_CONTACTS :
                 setUpStudentList();
                 break;
 
@@ -147,13 +153,27 @@ public class HomeTabFragment extends Fragment implements StudentTeacherOrSubject
 
     private void setupTeacherList(){
 
-            homeCommonAdapter = new HomeCommonAdapter(getActivity(),Constants.TAB_TEACHER,this);
+        if(listSubjects!=null && listSubjects.size()>0) {
+            for (String subject : listSubjects) {
+                UserOrGroupDetails userOrGroupDetails = new UserOrGroupDetails();
+                userOrGroupDetails.setName(subject);
+                userOrGroupDetails.setGroup(true);
+                userOrGroupDetails.setEmail("");
+                userOrGroupDetails.setUserid("");
+                userOrGroupDetails.setNumber("");
+
+                listTeachers.add(userOrGroupDetails);
+            }
+        }
+
+            homeCommonAdapter = new HomeCommonAdapter(getActivity(),Constants.TAB_CHAT,this);
             homeCommonAdapter.setStudentOrData(listTeachers);
             recyclerViewUser.setAdapter(homeCommonAdapter);
 
 
 
         if(listTeachers.size()==0) {
+
             databaseReferenceTeacher.addListenerForSingleValueEvent(
                     new ValueEventListener() {
                         @Override
@@ -163,17 +183,17 @@ public class HomeTabFragment extends Fragment implements StudentTeacherOrSubject
 
                            /* for (DataSnapshot innerDataSanpShot : dataSnapshot.getChildren()) {
                                 //DataSnapshot of inner Childerns
-                                SignupModel signupModel = innerDataSanpShot.getValue(SignupModel.class);
+                                UserOrGroupDetails signupModel = innerDataSanpShot.getValue(UserOrGroupDetails.class);
                             }*/
 
                                 Iterable<DataSnapshot> dataSnapshotIterable = dataSnapshot.getChildren();
                                 Iterator<DataSnapshot> iterator = dataSnapshotIterable.iterator();
 
                                 while (iterator.hasNext()) {
-                                    SignupModel signupModel = iterator.next().getValue(SignupModel.class);
-                                    Log.i(TAG, "onDataChange: 2 " + signupModel.getEmail() + " name " + signupModel.getName());
-                                    listTeachers.add(signupModel);
-                                    //  databaseHelper.insertUser(getActivity(), signupModel);
+                                    UserOrGroupDetails userOrGroupDetails = iterator.next().getValue(UserOrGroupDetails.class);
+                                    Log.i(TAG, "onDataChange: 2 " + userOrGroupDetails.getEmail() + " name " + userOrGroupDetails.getName());
+                                    listTeachers.add(userOrGroupDetails);
+                                    //  databaseHelper.insertUser(getActivity(), userOrGroupDetails);
                                 }
                                 homeCommonAdapter.notifyDataSetChanged();
                             }
@@ -196,13 +216,16 @@ public class HomeTabFragment extends Fragment implements StudentTeacherOrSubject
     private void setUpStudentList(){
 
 
+
         if (homeCommonAdapter == null){
-            homeCommonAdapter = new HomeCommonAdapter(getActivity(),Constants.TAB_STUDENT,this);
+            homeCommonAdapter = new HomeCommonAdapter(getActivity(),Constants.TAB_CONTACTS,this);
             homeCommonAdapter.setStudentOrData(listStudents);
             recyclerViewUser.setAdapter(homeCommonAdapter);
         }
 
         if(listStudents.size()==0) {
+
+
             databaseChatReferenceStudent.addListenerForSingleValueEvent(
                     new ValueEventListener() {
                         @Override
@@ -212,17 +235,20 @@ public class HomeTabFragment extends Fragment implements StudentTeacherOrSubject
 
                            /* for (DataSnapshot innerDataSanpShot : dataSnapshot.getChildren()) {
                                 //DataSnapshot of inner Childerns
-                                SignupModel signupModel = innerDataSanpShot.getValue(SignupModel.class);
+                                UserOrGroupDetails signupModel = innerDataSanpShot.getValue(UserOrGroupDetails.class);
                             }*/
 
                                 Iterable<DataSnapshot> dataSnapshotIterable = dataSnapshot.getChildren();
                                 Iterator<DataSnapshot> iterator = dataSnapshotIterable.iterator();
 
                                 while (iterator.hasNext()) {
-                                    SignupModel signupModel = iterator.next().getValue(SignupModel.class);
-                                    Log.i(TAG, "onDataChange: 2 " + signupModel.getEmail() + " name " + signupModel.getName());
-                                    listStudents.add(signupModel);
-                                    //  databaseHelper.insertUser(getActivity(), signupModel);
+                                    UserOrGroupDetails userOrGroupDetails = iterator.next().getValue(UserOrGroupDetails.class);
+                                    /*if(listSubjects!=null && listSubjects.size()>0 && userOrGroupDetails.){
+
+                                    }*/
+                                    Log.i(TAG, "onDataChange: 2 " + userOrGroupDetails.getEmail() + " name " + userOrGroupDetails.getName());
+                                    listStudents.add(userOrGroupDetails);
+                                    //  databaseHelper.insertUser(getActivity(), userOrGroupDetails);
                                 }
                                 homeCommonAdapter.notifyDataSetChanged();
 
@@ -237,7 +263,7 @@ public class HomeTabFragment extends Fragment implements StudentTeacherOrSubject
                     });
         }
         else{
-            homeCommonAdapter = new HomeCommonAdapter(getActivity(),Constants.TAB_STUDENT,this);
+            homeCommonAdapter = new HomeCommonAdapter(getActivity(),Constants.TAB_CONTACTS,this);
             homeCommonAdapter.setStudentOrData(listStudents);
             recyclerViewUser.setAdapter(homeCommonAdapter);
         }
@@ -245,19 +271,30 @@ public class HomeTabFragment extends Fragment implements StudentTeacherOrSubject
     }
 
     @Override
-    public void onSelectStudentOrTeacher(SignupModel signupModel) {
-        if(signupModel!=null) {
-            Intent intent = new Intent(getActivity(), ChatActivity.class);
-            intent.putExtra(Constants.BundleKeys.USER_NAME, signupModel.getName());
-            intent.putExtra(Constants.BundleKeys.USER_ID, signupModel.getUserid());
-            startActivity(intent);
+    public void onSelectStudentOrTeacher(UserOrGroupDetails userOrGroupDetails) {
+        if(userOrGroupDetails !=null) {
+            if(userOrGroupDetails!=null && !userOrGroupDetails.isGroup) {
+                Intent intent = new Intent(getActivity(), ChatActivity.class);
+                intent.putExtra(Constants.BundleKeys.USER_NAME, userOrGroupDetails.getName());
+                intent.putExtra(Constants.BundleKeys.USER_ID, userOrGroupDetails.getUserid());
+                startActivity(intent);
+            }else{
+                Intent intent  = new Intent(getActivity(), SubjectChatActivity.class);
+                intent.putExtra(Constants.BundleKeys.RECIEVER_ID,userOrGroupDetails.getUserid());
+                if(userOrGroupDetails.isGroup){
+                    intent.putExtra(Constants.BundleKeys.GROUP_NAME,userOrGroupDetails.getName());
+                }
+                else{
+                    intent.putExtra(Constants.BundleKeys.RECIEVER_NAME,userOrGroupDetails.getName());
+                }
+                startActivity(intent);
+            }
         }
     }
 
     @Override
     public void onSelectSubject(String subjectName) {
-        Intent intent  = new Intent(getActivity(), SubjectChatActivity.class);
-        startActivity(intent);
+
 
     }
 }

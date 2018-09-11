@@ -35,4 +35,11 @@ public interface ChatDtoDao {
     @Query("SELECT * FROM chatData WHERE subject LIKE :subject")
     public abstract List<ChatDto> getChatdataBySubject(String subject);
 
+    @Query("SELECT * FROM chatData WHERE recieverId LIKE :recieverId AND senderId LIKE :senderId")
+    public abstract List<ChatDto> getChatdataByRecieverId(String recieverId,String senderId);
+
+
+
+
+
 }

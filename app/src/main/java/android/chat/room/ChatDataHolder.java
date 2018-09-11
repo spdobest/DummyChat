@@ -4,11 +4,12 @@ import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.chat.room.entity.ChatDto;
+import android.chat.room.entity.User;
 import android.chat.room.roomDao.ChatDtoDao;
 import android.content.Context;
 
 
-@Database(entities = {ChatDto.class}, version = 1)
+@Database(entities = {ChatDto.class, User.class}, version = 1)
 public abstract class ChatDataHolder extends RoomDatabase {
 
     private static ChatDataHolder INSTANCE;

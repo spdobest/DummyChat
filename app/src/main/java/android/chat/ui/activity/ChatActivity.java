@@ -448,7 +448,7 @@ public class ChatActivity extends BaseActivity implements ChildEventListener, Vi
 				emojIcon.ShowEmojIcon();
 				break;
 			case R.id.imageViewAttach:
-
+				showSubjectBottomsheet();
 				break;
 
 			/*case R.id.buttonLoadMore:
@@ -856,5 +856,27 @@ public class ChatActivity extends BaseActivity implements ChildEventListener, Vi
 			return true;
 		}
 		return recyclerViewChat.getChildAt( 0 ).getTop() == 0;
+	}
+
+	public void showSubjectBottomsheet() {
+		RecyclerView recyclerView;
+
+		AppCompatImageView imageViewAttachImageChat;
+		AppCompatImageView imageViewAttachLocChat;
+		AppCompatImageView imageViewAttachDocChat;
+		AppCompatImageView imageViewAttachVideoChat;
+
+		if (bottomSheetDialog == null)
+			bottomSheetDialog = new BottomSheetDialog(ChatActivity.this);
+
+		bottomSheetDialog.setContentView(R.layout.bottomsheet_attach);
+
+		imageViewAttachImageChat = bottomSheetDialog.findViewById(R.id.imageViewAttachImageChat);
+		imageViewAttachVideoChat = bottomSheetDialog.findViewById(R.id.imageViewAttachVideoChat);
+		imageViewAttachDocChat = bottomSheetDialog.findViewById(R.id.imageViewAttachDocChat);
+		imageViewAttachLocChat = bottomSheetDialog.findViewById(R.id.imageViewAttachLocChat);
+
+		bottomSheetDialog.show();
+
 	}
 }

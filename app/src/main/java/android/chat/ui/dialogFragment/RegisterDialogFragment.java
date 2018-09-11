@@ -3,10 +3,9 @@ package android.chat.ui.dialogFragment;
 import android.chat.R;
 import android.chat.data.PreferenceManager;
 import android.chat.model.teacher.TeacherData;
-import android.chat.model.teacherSIgnup.SignupModel;
+import android.chat.model.UserOrGroupDetails;
 import android.chat.room.entity.User;
 import android.chat.ui.activity.HomeActivity;
-import android.chat.ui.base.BaseDialogFragment;
 import android.chat.ui.base.BaseLoginRegisterDialogFragment;
 import android.chat.util.ApplicationUtils;
 import android.chat.util.CommonUtils;
@@ -16,18 +15,14 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.AppCompatTextView;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
@@ -39,7 +34,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.gson.Gson;
 
 public class RegisterDialogFragment extends BaseLoginRegisterDialogFragment implements View.OnClickListener {
 
@@ -150,7 +144,6 @@ public class RegisterDialogFragment extends BaseLoginRegisterDialogFragment impl
                                         //checking if success
                                         if (task.isSuccessful()) {
                                             onAuthSuccess(task.getResult().getUser());
-                                            PreferenceManager.getInstance(getActivity()).setUserLoggedIN(true);
                                         } else {
                                             //display some message here
                                             Toast.makeText(getActivity(), task.getException().toString(), Toast.LENGTH_LONG).show();
@@ -173,57 +166,62 @@ public class RegisterDialogFragment extends BaseLoginRegisterDialogFragment impl
     }
 
     private void onAuthSuccess(FirebaseUser user) {
-        // Write new user
-        writeNewUser(user.getUid(), edittextName.getText().toString().trim(), user.getEmail(), edittextMobile.getText().toString().trim());
 
+        if(user !=null) {
+            String userId = user.getUid();
+            String name = edittextName.getText().toString().trim();
+            String email= edittextName.getText().toString().trim();
+            String number = edittextMobile.getText().toString().trim();
+
+            PreferenceManager.getInstance(getActivity()).setUserLoggedIN(true);
+
+            PreferenceManager.getInstance(getActivity()).setSubjectList(ApplicationUtils.getStringWithComma(getSelectedSubjectList()));
+            PreferenceManager.getInstance(getActivity()).setUserId(userId);
+
+            String subjectList = ApplicationUtils.getStringWithComma(getSelectedSubjectList());
+            TeacherData teacherData = new TeacherData(userId,
+                    name,
+                    email,
+                    number,
+                    subjectList,
+                    edittextPassword.getText().toString().trim()
+            );
+
+            if (radioStudent.isChecked()) {
+                UserOrGroupDetails userOrGroupDetails = new UserOrGroupDetails(userId, name, email, number, subjectList);
+                userOrGroupDetails.setUserid(userId);
+                userOrGroupDetails.setName(name);
+                userOrGroupDetails.setEmail(email);
+                userOrGroupDetails.setNumber(number);
+                userOrGroupDetails.setSubjectList(subjectList);
+
+                mDatabase.child(Constants.FirebaseConstants.TABLE_STUDENT).child(userId).setValue(userOrGroupDetails);
+
+                PreferenceManager.getInstance(getActivity()).setIsStudent(true);
+            } else {
+                UserOrGroupDetails userOrGroupDetails = new UserOrGroupDetails(userId, name, email, number, subjectList);
+                userOrGroupDetails.setUserid(userId);
+                userOrGroupDetails.setName(name);
+                userOrGroupDetails.setEmail(email);
+                userOrGroupDetails.setNumber(number);
+                userOrGroupDetails.setSubjectList(subjectList);
+                mDatabase.child(Constants.FirebaseConstants.TABLE_TEACHER).child(userId).setValue(userOrGroupDetails);
+                PreferenceManager.getInstance(getActivity()).setIsStudent(false);
+            }
+
+            User userInner = new User(userId, name, email, number, "", "");
+            mDatabase.child(Constants.FirebaseConstants.TABLE_USER).child(userId).setValue(userInner);
+
+            getActivity().startActivity(new Intent(getActivity(), HomeActivity.class));
+        }
+        else{
+            showError("Error");
+        }
     }
 
     private void writeNewUser(String userId, String name, String email, String number) {
-        String subjectList = ApplicationUtils.getStringWithComma(getSelectedSubjectList());
-        TeacherData teacherData = new TeacherData(userId,
-                name,
-                email,
-                number,
-                subjectList,
-                edittextPassword.getText().toString().trim()
-        );
-
-        if(radioStudent.isChecked()){
-            SignupModel signupModel = new SignupModel(userId, name, email, number,subjectList);
-            signupModel.setUserid(userId);
-            signupModel.setName(name);
-            signupModel.setEmail(email);
-            signupModel.setNumber(number);
-            signupModel.setSubjectList(subjectList);
-
-            mDatabase.child(Constants.FirebaseConstants.TABLE_STUDENT).child(userId).setValue(signupModel);
-
-            PreferenceManager.getInstance(getActivity()).setIsStudent(true);
-        }
-        else{
-            SignupModel signupModel = new SignupModel(userId, name, email, number,subjectList);
-            signupModel.setUserid(userId);
-            signupModel.setName(name);
-            signupModel.setEmail(email);
-            signupModel.setNumber(number);
-            signupModel.setSubjectList(subjectList);
-            mDatabase.child(Constants.FirebaseConstants.TABLE_TEACHER).child(userId).setValue(signupModel);
-            PreferenceManager.getInstance(getActivity()).setIsStudent(false);
-        }
 
 
-        User user = new User(userId,name,email,number,"","");
-        mDatabase.child(Constants.FirebaseConstants.TABLE_USER).child(userId).setValue(user);
-
-        PreferenceManager.getInstance(getActivity()).setUserId(userId);
-        PreferenceManager.getInstance(getActivity()).setUserName(name);
-
-        getActivity().startActivity(new Intent(getActivity(), HomeActivity.class));
-
-
-        Gson gson = new Gson();
-        String json = gson.toJson("j");
-        // prefs.edit().putString(Constants.USER_MODEL,json).commit();
     }
 
 }

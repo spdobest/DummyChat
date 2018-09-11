@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootLayout_bottomsheetAttach"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:background="#80000000"
+        android:orientation="horizontal"
+        android:gravity="center"
+        >
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/imageViewAttachImageChat"
+            android:layout_width="@dimen/dimen_60dp"
+            android:layout_height="@dimen/dimen_60dp"
+            app:srcCompat="@drawable/ic_camera"
+            android:background="@drawable/circle_shape"
+            android:padding="@dimen/dimen_12dp"
+            android:layout_margin="@dimen/dimen_5dp"
+            />
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/imageViewAttachVideoChat"
+            android:layout_width="@dimen/dimen_60dp"
+            android:layout_height="@dimen/dimen_60dp"
+            app:srcCompat="@drawable/ic_video"
+            android:background="@drawable/circle_shape"
+            android:padding="@dimen/dimen_15dp"
+            android:layout_margin="@dimen/dimen_5dp"
+            />
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/imageViewAttachDocChat"
+            android:layout_width="@dimen/dimen_60dp"
+            android:layout_height="@dimen/dimen_60dp"
+            app:srcCompat="@drawable/ic_document"
+            android:background="@drawable/circle_shape"
+            android:padding="@dimen/dimen_12dp"
+            android:layout_margin="@dimen/dimen_5dp"
+            />
+
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/imageViewAttachLocChat"
+            android:layout_width="@dimen/dimen_60dp"
+            android:layout_height="@dimen/dimen_60dp"
+            app:srcCompat="@drawable/ic_location"
+            android:background="@drawable/circle_shape"
+            android:padding="@dimen/dimen_12dp"
+            android:layout_margin="@dimen/dimen_5dp"
+            />
+
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>

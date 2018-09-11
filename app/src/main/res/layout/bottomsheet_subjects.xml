@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/rootLayout_bottomsheet"
+    android:padding="@dimen/dimen_5dp"
     >
 
     <android.support.v7.widget.RecyclerView
@@ -20,7 +21,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:background="@drawable/rounded_button"
-        android:layout_margin="@dimen/dimen_10dp"
+        android:layout_margin="@dimen/dimen_5dp"
         android:text="@string/submit"
         app:layout_constraintTop_toBottomOf="@+id/recyclerViewSubjects" />
 

@@ -1,10 +1,12 @@
 package android.chat.util;
 
 import android.chat.application.ChatApplication;
+import android.chat.data.PreferenceManager;
 import android.chat.listeners.OnFirebasseActionListener;
 import android.chat.model.student.StudentData;
 import android.chat.model.teacher.TeacherData;
 import android.chat.model.teacher.TeacherLocalData;
+import android.chat.model.UserOrGroupDetails;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -21,10 +23,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 
-import org.w3c.dom.Comment;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,37 +50,6 @@ public class FirebaseUtility {
 
 
     private static final String TAG = "FirebaseUtility";
-
-    public static void saveTeacherProfile(final Context mContext,String teacherId){
-
-        // teacherId = "-L9YZfr4aq4SLa7Uq2-a";
-        Query teacherDetailsQuery = ChatApplication.getFirebaseDatabaseReference().
-                child(FirebaseConstants.TEACHER_TABLE).orderByChild(FirebaseConstants.TEACHER_ID).equalTo(teacherId);
-        teacherDetailsQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                TeacherData teacherData = null;
-                //_______________________________ check if server return null _________________________________
-                if (dataSnapshot.exists()) {
-                    //getting the data a t specific node which is selected by input Restaurant name
-                    for (DataSnapshot child : dataSnapshot.getChildren()) {
-                        teacherData = child.getValue(TeacherData.class);
-                        saveTeacherProfile(teacherData);
-                    }
-                    String name = teacherData.getName();
-                    Log.i(TAG, "onDataChange: name from id is:  "+name);
-                } else {
-                    Log.i(TAG, " name does'nt exists!");
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-    }
 
     public static void saveTeacherProfile(TeacherData teacherData){
         teacherProfileData = teacherData;
@@ -321,7 +289,7 @@ public class FirebaseUtility {
                     }
 
                     if(onFirebasseActionListen!=null){
-                        onFirebasseActionListen.onSuccess();
+                        onFirebasseActionListen.onSuccess("");
                     }
 
                 }
@@ -549,5 +517,61 @@ public class FirebaseUtility {
     public static void call(){
 
     }
+
+    /**
+     * ADDED NEW
+     *
+     * @param mContext
+     * @param teacherId
+     */
+
+
+    public static void saveProfileData(final Context mContext,
+                                       final String teacherId,
+                                       final OnFirebasseActionListener onFirebasseActionListener){
+        // teacherId = "-L9YZfr4aq4SLa7Uq2-a";
+        Query teacherDetailsQuery = ChatApplication.getFirebaseDatabaseReference().
+                child(FirebaseConstants.TEACHER_TABLE).orderByChild(FirebaseConstants.TEACHER_ID).equalTo(teacherId);
+        teacherDetailsQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                UserOrGroupDetails teacherData = null;
+                //_______________________________ check if server return null _________________________________
+                if (dataSnapshot.exists()) {
+                    //getting the data a t specific node which is selected by input Restaurant name
+                    for (DataSnapshot child : dataSnapshot.getChildren()) {
+                        teacherData = child.getValue(UserOrGroupDetails.class);
+
+                        if(teacherData!=null && !TextUtils.isEmpty(teacherData.getSubjectList())){
+                           PreferenceManager.getInstance(mContext).setSubjectList(teacherData.getSubjectList());
+                        }
+
+                        PreferenceManager.getInstance(mContext).setUserId(teacherId);
+                        PreferenceManager.getInstance(mContext).setUserLoggedIN(true);
+                        if(onFirebasseActionListener!=null){
+                            onFirebasseActionListener.onSuccess("");
+                        }
+
+                    }
+                    String name = teacherData.getName();
+                    Log.i(TAG, "onDataChange: name from id is:  "+name);
+                } else {
+                    Log.i(TAG, " name does'nt exists!");
+                    if(onFirebasseActionListener!=null){
+                        onFirebasseActionListener.onSuccess("Data Doesnot Exist");
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                if(onFirebasseActionListener!=null){
+                    onFirebasseActionListener.onSuccess("Error");
+                }
+            }
+        });
+
+    }
+
 
 }

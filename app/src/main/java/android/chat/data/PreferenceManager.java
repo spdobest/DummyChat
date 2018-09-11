@@ -73,7 +73,7 @@ public class PreferenceManager {
         String AppliedMax ="Maxi" ;
 
         String IS_STUDENT ="isStudent" ;
-        String IS_LOGGED_IN ="isLoggedIn" ;
+        String SUBJECT_LIST ="subjectList" ;
     }
 
     private static PreferenceManager sInstance;
@@ -307,6 +307,13 @@ public class PreferenceManager {
         return mPrefs.getInt( Keys.AppliedMin, 0);
     }
 
+
+    public void setSubjectList(String subjects) {
+        mEditor.putString( Keys.SUBJECT_LIST, subjects).commit();
+    }
+    public String getSubjectList() {
+        return mPrefs.getString( Keys.SUBJECT_LIST, "");
+    }
 
     public void setAppliedMax(int max) {
         mEditor.putInt( Keys.AppliedMax, max).commit();

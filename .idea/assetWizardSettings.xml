@@ -69,7 +69,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/Applications/Android%20Studio.app/Contents/plugins/android/lib/android.jar!/images/material_design_icons/notification/ic_do_not_disturb_on_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/Applications/Android%20Studio.app/Contents/plugins/android/lib/android.jar!/images/material_design_icons/social/ic_person_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -79,7 +79,8 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputName" value="ic_logout" />
+                            <entry key="color" value="d3d3d3" />
+                            <entry key="outputName" value="ic_user" />
                             <entry key="overrideSize" value="true" />
                             <entry key="sourceFile" value="$USER_HOME$" />
                           </map>

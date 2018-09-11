@@ -32,6 +32,7 @@ import android.view.View;
 /**
  * TODO
  */
+
 public class HomeActivity extends AppCompatActivity {
 
     public static final String TAG = "HomeActivity";
@@ -86,25 +87,18 @@ public class HomeActivity extends AppCompatActivity {
     private void setupViewPager( ViewPager viewPager ) {
         adapter = new HomePagerAdapter( getSupportFragmentManager() );
 
-
-        HomeTabFragment homeTabFragmentStudent = new HomeTabFragment();
+        HomeTabFragment homeTabFragmentContacts = new HomeTabFragment();
         Bundle bundle = new Bundle();
-        bundle.putShort(Constants.BundleKeys.TAB_TYPE,Constants.TAB_STUDENT);
-        homeTabFragmentStudent.setArguments(bundle);
+        bundle.putShort(Constants.BundleKeys.TAB_TYPE,Constants.TAB_CONTACTS);
+        homeTabFragmentContacts.setArguments(bundle);
 
-        HomeTabFragment homeTabFragmentTeacher = new HomeTabFragment();
+        HomeTabFragment homeTabFragmentChat = new HomeTabFragment();
         Bundle bundleTeacher = new Bundle();
-        bundleTeacher.putShort(Constants.BundleKeys.TAB_TYPE,Constants.TAB_TEACHER);
-        homeTabFragmentTeacher.setArguments(bundleTeacher);
+        bundleTeacher.putShort(Constants.BundleKeys.TAB_TYPE,Constants.TAB_CHAT);
+        homeTabFragmentChat.setArguments(bundleTeacher);
 
-        HomeTabFragment homeTabFragmentSubject = new HomeTabFragment();
-        Bundle bundleSubject = new Bundle();
-        bundleSubject.putShort(Constants.BundleKeys.TAB_TYPE,Constants.TAB_SUBJECT);
-        homeTabFragmentSubject.setArguments(bundleSubject);
-
-        adapter.addFragment(homeTabFragmentStudent , "Student" );
-        adapter.addFragment( homeTabFragmentTeacher, "Teacher" );
-        adapter.addFragment( homeTabFragmentSubject, "Subject" );
+        adapter.addFragment(homeTabFragmentContacts , Constants.TAB_NAME_CONTACT );
+        adapter.addFragment( homeTabFragmentChat, Constants.TAB_NAME_CHAT  );
 
         viewPager.setAdapter( adapter );
 
@@ -122,20 +116,16 @@ public class HomeActivity extends AppCompatActivity {
     }
     public View getTabView(int position) {
         View               view   = LayoutInflater.from( this).inflate( R.layout.custom_tab_layout, null);
-        AppCompatTextView  title  = (AppCompatTextView ) view.findViewById( R.id.textViewTabname);
-        AppCompatImageView icon   = (AppCompatImageView ) view.findViewById( R.id.imageViewTab);
+        AppCompatTextView  title  = view.findViewById( R.id.textViewTabname);
+        AppCompatImageView icon   = view.findViewById( R.id.imageViewTab);
         switch (position){
             case 0 :
-                title.setText("Student");
-                icon.setImageDrawable(ContextCompat.getDrawable(this,R.drawable.ic_chat_black_24dp));
+                title.setText(Constants.TAB_NAME_CONTACT);
+                icon.setImageDrawable(ContextCompat.getDrawable(this,R.drawable.ic_user));
                 break;
             case 1 :
-                title.setText("Teacher");
-                icon.setImageDrawable(ContextCompat.getDrawable(this,R.drawable.ic_person_24dp));
-                break;
-            case 2 :
-                title.setText("Subjects");
-                icon.setImageDrawable(ContextCompat.getDrawable(this,R.drawable.ic_chat_black_24dp));
+                title.setText(Constants.TAB_NAME_CHAT);
+                icon.setImageDrawable(ContextCompat.getDrawable(this,R.drawable.ic_people_grey));
                 break;
         }
         return view;

@@ -1,6 +1,6 @@
 package android.chat.listeners;
 
 public interface OnFirebasseActionListener{
-        void onSuccess();
-        void onFail();
+        void onSuccess(String message);
+        void onFail(String message);
     }

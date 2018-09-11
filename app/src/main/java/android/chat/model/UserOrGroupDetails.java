@@ -1,20 +1,29 @@
-package android.chat.model.teacherSIgnup;
+package android.chat.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class SignupModel implements Parcelable {
+public class UserOrGroupDetails implements Parcelable {
 
     public String name;
     public String email;
     public String userid;
     public String number;
     public String subjectList;
+    public boolean isGroup;
 
-    public SignupModel() {
+    public boolean isGroup() {
+        return isGroup;
     }
 
-    public SignupModel(String userId, String name, String email, String number, String subjectList) {
+    public void setGroup(boolean group) {
+        isGroup = group;
+    }
+
+    public UserOrGroupDetails() {
+    }
+
+    public UserOrGroupDetails(String userId, String name, String email, String number, String subjectList) {
         this.name = name;
         this.email = email;
         this.userid = userId;
@@ -30,7 +39,7 @@ public class SignupModel implements Parcelable {
         this.subjectList = subjectList;
     }
 
-    public static Creator<SignupModel> getCREATOR() {
+    public static Creator<UserOrGroupDetails> getCREATOR() {
         return CREATOR;
     }
 
@@ -78,25 +87,27 @@ public class SignupModel implements Parcelable {
         dest.writeString(this.userid);
         dest.writeString(this.number);
         dest.writeString(this.subjectList);
+        dest.writeByte(this.isGroup ? (byte) 1 : (byte) 0);
     }
 
-    protected SignupModel(Parcel in) {
+    protected UserOrGroupDetails(Parcel in) {
         this.name = in.readString();
         this.email = in.readString();
         this.userid = in.readString();
         this.number = in.readString();
         this.subjectList = in.readString();
+        this.isGroup = in.readByte() != 0;
     }
 
-    public static final Parcelable.Creator<SignupModel> CREATOR = new Parcelable.Creator<SignupModel>() {
+    public static final Creator<UserOrGroupDetails> CREATOR = new Creator<UserOrGroupDetails>() {
         @Override
-        public SignupModel createFromParcel(Parcel source) {
-            return new SignupModel(source);
+        public UserOrGroupDetails createFromParcel(Parcel source) {
+            return new UserOrGroupDetails(source);
         }
 
         @Override
-        public SignupModel[] newArray(int size) {
-            return new SignupModel[size];
+        public UserOrGroupDetails[] newArray(int size) {
+            return new UserOrGroupDetails[size];
         }
     };
 }

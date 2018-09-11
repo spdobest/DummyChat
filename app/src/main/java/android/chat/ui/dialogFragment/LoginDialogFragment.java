@@ -2,10 +2,12 @@ package android.chat.ui.dialogFragment;
 
 import android.chat.R;
 import android.chat.data.PreferenceManager;
+import android.chat.listeners.OnFirebasseActionListener;
 import android.chat.ui.activity.HomeActivity;
 import android.chat.ui.base.BaseDialogFragment;
 import android.chat.ui.base.BaseLoginRegisterDialogFragment;
 import android.chat.util.CommonUtils;
+import android.chat.util.FirebaseUtility;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -33,7 +35,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
-public class LoginDialogFragment extends BaseLoginRegisterDialogFragment implements View.OnClickListener {
+public class LoginDialogFragment extends BaseLoginRegisterDialogFragment implements View.OnClickListener,OnFirebasseActionListener {
 
 
     private static final String TAG = "LoginDialogFragment";
@@ -102,7 +104,6 @@ public class LoginDialogFragment extends BaseLoginRegisterDialogFragment impleme
         switch (view.getId()){
             case R.id.buttonLogin :
 
-
                 if (!CommonUtils.isInternetAvailable(getActivity())) {
                     showError(getString(R.string.no_internet));
                 } else {
@@ -116,14 +117,6 @@ public class LoginDialogFragment extends BaseLoginRegisterDialogFragment impleme
                     }
                     else {
                         showProgressBar();
-
-                        if(radioStudent.isChecked()){
-                            PreferenceManager.getInstance(getActivity()).setIsStudent(true);
-                        }
-                        else{
-                            PreferenceManager.getInstance(getActivity()).setIsStudent(false);
-                        }
-
                         //authenticate user
                         auth.signInWithEmailAndPassword(email, password)
                                 .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
@@ -133,13 +126,16 @@ public class LoginDialogFragment extends BaseLoginRegisterDialogFragment impleme
                                         if (!task.isSuccessful()) {
                                             showError("Invalid User name  or Password");
                                         } else {
-                                            String teacherId = task.getResult().getUser().getUid();
-                                            if (!TextUtils.isEmpty(teacherId)) {
-                                                PreferenceManager.getInstance(getActivity()).setUserId(teacherId);
+                                            String userId = task.getResult().getUser().getUid();
+                                            if (!TextUtils.isEmpty(userId)) {
 
-                                                PreferenceManager.getInstance(getActivity()).setUserLoggedIN(true);
-
-                                                getActivity().startActivity(new Intent(getActivity(), HomeActivity.class));
+                                                if(radioStudent.isChecked()){
+                                                    PreferenceManager.getInstance(getActivity()).setIsStudent(true);
+                                                }
+                                                else{
+                                                    PreferenceManager.getInstance(getActivity()).setIsStudent(false);
+                                                }
+                                                saveData(userId);
                                             }
                                         }
                                     }
@@ -154,5 +150,20 @@ public class LoginDialogFragment extends BaseLoginRegisterDialogFragment impleme
                getActivity().startActivity(new Intent(getActivity(), HomeActivity.class));
                 break;
         }
+    }
+
+    private void saveData(String userId){
+        FirebaseUtility.saveProfileData(getActivity(),userId,this);
+    }
+
+    @Override
+    public void onSuccess(String message) {
+        getActivity().startActivity(new Intent(getActivity(), HomeActivity.class));
+        getActivity().finish();
+    }
+
+    @Override
+    public void onFail(String message) {
+        showError(message);
     }
 }

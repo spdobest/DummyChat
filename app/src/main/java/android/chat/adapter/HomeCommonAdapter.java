@@ -1,24 +1,18 @@
 package android.chat.adapter;
 
 import android.chat.R;
-import android.chat.data.PreferenceManager;
 import android.chat.listeners.StudentTeacherOrSubjectListener;
-import android.chat.model.chat.ModelChat;
-import android.chat.model.teacherSIgnup.SignupModel;
+import android.chat.model.UserOrGroupDetails;
 import android.chat.util.Constants;
 import android.content.Context;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.List;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 
 /**
@@ -30,7 +24,7 @@ public class HomeCommonAdapter extends RecyclerView.Adapter<HomeCommonAdapter.Vi
     public static final String TAG = "ChatAdapter";
     private LayoutInflater layoutInflater;
 
-    private List<SignupModel> listStudentOrTeacher;
+    private List<UserOrGroupDetails> listStudentOrTeacher;
     private List<String> listSubject;
 
     StudentTeacherOrSubjectListener studentTeacherOrSubjectListener;
@@ -51,17 +45,17 @@ public class HomeCommonAdapter extends RecyclerView.Adapter<HomeCommonAdapter.Vi
     @Override
     public ViewHolderParent onCreateViewHolder(ViewGroup parent, int viewType) {
         View v;
-        if (viewType == Constants.TAB_STUDENT) {
+        if (viewType == Constants.TAB_CONTACTS) {
             v = LayoutInflater.from(context)
                     .inflate(R.layout.itemview_student, parent, false);
 
             return new ViewHolderStudent(v);
-        } else if (viewType == Constants.TAB_TEACHER) {
+        } else if (viewType == Constants.TAB_CHAT) {
             v = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.itemview_student, parent, false);
 
             return new ViewHolderTeacher(v);
-        } else if (viewType == Constants.TAB_SUBJECT) {
+        } else if (viewType == 3) {
             v = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.itemview_subject_list, parent, false);
             return new ViewHolderSubject(v);
@@ -76,19 +70,19 @@ public class HomeCommonAdapter extends RecyclerView.Adapter<HomeCommonAdapter.Vi
     public void onBindViewHolder(ViewHolderParent holder, int position) {
 
         switch (holder.getItemViewType()) {
-            case Constants.TAB_STUDENT:
+            case Constants.TAB_CONTACTS:
 
                 if(listStudentOrTeacher!=null && listStudentOrTeacher.size()>0) {
-                    final SignupModel signupModel = listStudentOrTeacher.get(position);
+                    final UserOrGroupDetails userOrGroupDetails = listStudentOrTeacher.get(position);
 
                     final ViewHolderStudent viewHolderStudent = (ViewHolderStudent) holder;
-                        viewHolderStudent.textViewName.setText(signupModel.getName());
+                        viewHolderStudent.textViewName.setText(userOrGroupDetails.getName());
 
                     viewHolderStudent.itemView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             if(studentTeacherOrSubjectListener!=null) {
-                                studentTeacherOrSubjectListener.onSelectStudentOrTeacher(signupModel);
+                                studentTeacherOrSubjectListener.onSelectStudentOrTeacher(userOrGroupDetails);
                             }
                         }
                     });
@@ -96,24 +90,24 @@ public class HomeCommonAdapter extends RecyclerView.Adapter<HomeCommonAdapter.Vi
                 }
                 break;
 
-            case Constants.TAB_TEACHER:
+            case Constants.TAB_CHAT:
                 final ViewHolderTeacher viewHolderTeacher = (ViewHolderTeacher) holder;
                 if(listStudentOrTeacher!=null && listStudentOrTeacher.size()>0) {
-                    final SignupModel signupModel = listStudentOrTeacher.get(position);
+                    final UserOrGroupDetails userOrGroupDetails = listStudentOrTeacher.get(position);
 
-                    viewHolderTeacher.textViewName.setText(signupModel.getName());
+                    viewHolderTeacher.textViewName.setText(userOrGroupDetails.getName());
 
                     viewHolderTeacher.itemView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             if(studentTeacherOrSubjectListener!=null) {
-                                studentTeacherOrSubjectListener.onSelectStudentOrTeacher(signupModel);
+                                studentTeacherOrSubjectListener.onSelectStudentOrTeacher(userOrGroupDetails);
                             }
                         }
                     });
                 }
                 break;
-            case Constants.TAB_SUBJECT:
+            case 3:
                 final ViewHolderSubject viewHolderSubject = (ViewHolderSubject) holder;
 
                 if(listSubject!=null && listSubject.size()>0) {
@@ -199,7 +193,7 @@ public class HomeCommonAdapter extends RecyclerView.Adapter<HomeCommonAdapter.Vi
         }
     }
 
-    public void setStudentOrData(List<SignupModel> data){
+    public void setStudentOrData(List<UserOrGroupDetails> data){
         this.listStudentOrTeacher = data;
     }
     public void setSubjectData(List<String> data){

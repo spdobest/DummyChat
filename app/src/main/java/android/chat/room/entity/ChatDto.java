@@ -78,7 +78,6 @@ public class ChatDto implements Parcelable {
     }
 
     @ColumnInfo(name = "subject")
-
     String subject;
 
     public String getSenderId() {

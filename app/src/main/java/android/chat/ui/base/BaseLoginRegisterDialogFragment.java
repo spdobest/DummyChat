@@ -15,6 +15,7 @@ import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -24,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -121,17 +123,31 @@ public abstract class BaseLoginRegisterDialogFragment extends DialogFragment imp
     private BottomSheetDialog bottomSheetDialog;
     public void showSubjectBottomsheet() {
         RecyclerView recyclerView;
+        AppCompatButton buttonSubmitSubject;
 
         if (bottomSheetDialog == null)
             bottomSheetDialog = new BottomSheetDialog(getActivity());
 
         bottomSheetDialog.setContentView(R.layout.bottomsheet_subjects);
         recyclerView = bottomSheetDialog.findViewById(R.id.recyclerViewSubjects);
+        buttonSubmitSubject = bottomSheetDialog.findViewById(R.id.buttonSubmitSubject);
 
         subjectListAdapter = new SubjectListAdapter(getActivity(), ApplicationUtils.getSubjectList(),this);
         assert recyclerView != null;
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(subjectListAdapter);
+
+        buttonSubmitSubject.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(stringList.size()>0){
+                    bottomSheetDialog.dismiss();
+                }
+                else{
+                    Toast.makeText(getActivity(), "SelectSubject", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
 
         bottomSheetDialog.show();
@@ -142,6 +158,11 @@ public abstract class BaseLoginRegisterDialogFragment extends DialogFragment imp
     public void onSubjectSelect(String name, boolean isChecked) {
         if(isChecked){
             stringList.add(name);
+        }
+        else{
+            if(stringList.size()>0 && stringList.contains(name)){
+                stringList.remove(name);
+            }
         }
     }
 

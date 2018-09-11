@@ -1,8 +1,8 @@
 package android.chat.listeners;
 
-import android.chat.model.teacherSIgnup.SignupModel;
+import android.chat.model.UserOrGroupDetails;
 
 public interface StudentTeacherOrSubjectListener {
-    void onSelectStudentOrTeacher(SignupModel signupModel);
+    void onSelectStudentOrTeacher(UserOrGroupDetails userOrGroupDetails);
     void onSelectSubject(String subjectName);
 }
