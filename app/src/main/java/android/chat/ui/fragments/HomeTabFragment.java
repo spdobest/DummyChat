@@ -290,8 +290,8 @@ public class HomeTabFragment extends Fragment implements StudentTeacherOrSubject
         if(userOrGroupDetails !=null) {
             if(userOrGroupDetails!=null && userOrGroupDetails.isGroup == 0) {
                 Intent intent = new Intent(getActivity(), ChatActivity.class);
-                intent.putExtra(Constants.BundleKeys.USER_NAME, userOrGroupDetails.getName());
-                intent.putExtra(Constants.BundleKeys.USER_ID, userOrGroupDetails.getUserid());
+                intent.putExtra(Constants.BundleKeys.RECIEVER_NAME, userOrGroupDetails.getName());
+                intent.putExtra(Constants.BundleKeys.RECIEVER_ID, userOrGroupDetails.getUserid());
                 startActivity(intent);
             }else{
                 Intent intent  = new Intent(getActivity(), SubjectChatActivity.class);

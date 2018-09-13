@@ -4,11 +4,13 @@ package android.chat.ui.activity;
  */
 
 import android.chat.R;
+import android.chat.SpalshActivity;
 import android.chat.adapter.HomePagerAdapter;
 import android.chat.data.PreferenceManager;
 import android.chat.ui.fragments.HomeTabFragment;
 import android.chat.util.ApplicationUtils;
 import android.chat.util.Constants;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -152,6 +154,7 @@ public class HomeActivity extends AppCompatActivity {
             case R.id.menu_logout:
                 PreferenceManager.getInstance(this).setUserLoggedIN(false);
                 ApplicationUtils.clearApplicationData(this);
+                startActivity(new Intent(this,SpalshActivity.class));
                 finish();
                 break;
         }

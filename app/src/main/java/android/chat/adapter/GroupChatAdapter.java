@@ -51,6 +51,8 @@ public class GroupChatAdapter extends RecyclerView.Adapter< GroupChatAdapter.Vie
     private String            userName;
     private OnActionListener onActionListener;
 
+    private boolean isTeacher;
+
     public GroupChatAdapter( Context context, List< MessageModel > listData,
                              String userId, OnActionListener mOnActionListener ) {
         this.context = context;
@@ -60,6 +62,8 @@ public class GroupChatAdapter extends RecyclerView.Adapter< GroupChatAdapter.Vie
         userName = PreferenceManager.getInstance( context ).getUserName();
         this.onActionListener = mOnActionListener;
         Log.i( TAG, "GroupChatAdapter: user id " + userId + " size " + listData.size() );
+
+       isTeacher =  !PreferenceManager.getInstance(context).getIsStudent();
     }
 
     @Override
@@ -199,9 +203,23 @@ public class GroupChatAdapter extends RecyclerView.Adapter< GroupChatAdapter.Vie
                 break;
             case ROW_TYPE_FILE :
                 final ViewHolderDoc viewHolderDoc = (ViewHolderDoc) holder;
+                viewHolderDoc.textViewUserNameChatVideo.setText(modelChat.getSenderName());
                 viewHolderDoc.textViewUserTimeChatVideo.setText( modelChat.getMessageTime());
 
-                if(modelChat.isTeacher == 1) {
+
+                if ( userId.equalsIgnoreCase(modelChat.getCurrentUserId())  ) {
+                    viewHolderDoc.relativeLayoutRootChatVideo.setGravity( Gravity.RIGHT );
+                    viewHolderDoc.imageViewRightArrowChatVideo.setVisibility( View.VISIBLE );
+                    viewHolderDoc.imageViewLeftArrowChatVideo.setVisibility( View.GONE );
+                }
+                else {
+                    viewHolderDoc.relativeLayoutRootChatVideo.setGravity( Gravity.LEFT );
+                    viewHolderDoc.imageViewLeftArrowChatVideo.setVisibility( View.VISIBLE );
+                    viewHolderDoc.imageViewRightArrowChatVideo.setVisibility( View.GONE );
+                }
+
+
+                if(isTeacher) {
                     if (modelChat.getIsAccepted() == 1) {
                         viewHolderDoc.buttonApprove.setText("Approved");
                     } else {
@@ -211,8 +229,12 @@ public class GroupChatAdapter extends RecyclerView.Adapter< GroupChatAdapter.Vie
                 else{
                     if (modelChat.getIsAccepted() == 1) {
                         viewHolderDoc.buttonApprove.setText("Approved");
+
+                        viewHolderDoc.imageViewDownloadOrCancelVideo.setVisibility(View.VISIBLE);
+
                     } else {
                         viewHolderDoc.buttonApprove.setText("Waiting to approve");
+                        viewHolderDoc.imageViewDownloadOrCancelVideo.setVisibility(View.GONE);
                     }
                 }
                 viewHolderDoc.imageViewDownloadOrCancelVideo.setOnClickListener(new View.OnClickListener() {
@@ -231,7 +253,7 @@ public class GroupChatAdapter extends RecyclerView.Adapter< GroupChatAdapter.Vie
                 viewHolderDoc.buttonApprove.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if(modelChat.getIsAccepted() == 1 && modelChat.getIsTeacher() == 1) {
+                        if(modelChat.getIsAccepted() == 0 && isTeacher) {
                             onActionListener.onApproveClick(modelChat);
                         }
                     }

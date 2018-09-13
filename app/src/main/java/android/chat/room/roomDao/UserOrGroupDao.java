@@ -31,11 +31,8 @@ public interface UserOrGroupDao {
     @Query("DELETE FROM messageTable")
     void deleteAll();
 
-    @Query("SELECT * from messageTable ORDER BY id ASC")
+    @Query("SELECT * from usergrouptable ORDER BY id ASC")
     List<UserOrGroupDetails> getAllChat();
-
-    @Query("SELECT * FROM messageTable WHERE groupName LIKE :subject")
-    public abstract List<UserOrGroupDetails> getChatdataBySubject(String subject);
 
     @Query("SELECT * FROM UserGroupTable WHERE isGroup = 1")
     public abstract List<UserOrGroupDetails> getAllGroup();
@@ -43,15 +40,13 @@ public interface UserOrGroupDao {
     @Query("SELECT * FROM UserGroupTable WHERE isTeacher = 1")
     public abstract List<UserOrGroupDetails> getAllTeacher();
 
-    @Query("SELECT * FROM UserGroupTable WHERE isTeacher = 1 AND name")
+    @Query("SELECT * FROM UserGroupTable WHERE isTeacher = 1 AND name LIKE :subjectName")
     public abstract List<UserOrGroupDetails> getAllTeacherBySubject(String subjectName);
 
 
-    @Query("SELECT * FROM UserGroupTable WHERE isTeacher = 1 AND name")
+    @Query("SELECT * FROM UserGroupTable WHERE isTeacher = 1 AND name LIKE :subjectName")
     public abstract List<UserOrGroupDetails> getAllStudentBySubject(String subjectName);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public Long insertSubject(UserOrGroupDetails userOrGroupDetails);
-
-
 }

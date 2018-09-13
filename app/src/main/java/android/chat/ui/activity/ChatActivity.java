@@ -150,7 +150,6 @@ public class ChatActivity extends BaseActivity implements ChildEventListener, Vi
 	private String senderId;
 	private String recieverId;
 	private String recieverName;
-	private String groupName;
 
 
 //	private DatabaseHelper databaseHelper;
@@ -263,10 +262,6 @@ public class ChatActivity extends BaseActivity implements ChildEventListener, Vi
 
 			if (intent.hasExtra(Constants.BundleKeys.RECIEVER_NAME)) {
 				recieverName = intent.getExtras().getString(Constants.BundleKeys.RECIEVER_NAME);
-			}
-
-			if (intent.hasExtra(Constants.BundleKeys.GROUP_NAME)) {
-				groupName = intent.getExtras().getString(Constants.BundleKeys.GROUP_NAME);
 			}
 		}
 
@@ -529,7 +524,11 @@ public class ChatActivity extends BaseActivity implements ChildEventListener, Vi
 					while ( iterator.hasNext() ) {
 						Log.i( TAG, "onDataChange: 2 " );
 						MessageModel messageModel = iterator.next().getValue( MessageModel.class );
-						listMessageModel.add( messageModel );
+						if(messageModel!= null && TextUtils.isEmpty(messageModel.getGroupName())) {
+							listMessageModel.add(messageModel);
+							appDatabase.getMessageDao().insertMessage(messageModel);
+
+						}
 					}
 					chatAdapter.notifyDataSetChanged();
 				}
@@ -645,7 +644,7 @@ public class ChatActivity extends BaseActivity implements ChildEventListener, Vi
 		MessageModel messageModel = new MessageModel(
 				"",senderId,senderName,senderId,message,"" + System.currentTimeMillis(),
 				CommonUtils.getCurrentDate(),CommonUtils.getCurrentTime(),
-				messageType,"",0,0,groupName,
+				messageType,"",0,0,"",
 				PreferenceManager.getInstance(this).getIsStudent()?0:1,
 				0
 		);
@@ -677,7 +676,7 @@ public class ChatActivity extends BaseActivity implements ChildEventListener, Vi
 		if(listMessage!=null && listMessage.size()>0){
 			int size = listMessageModel.size();
 			listMessageModel.addAll(listMessage);
-			chatAdapter.notifyItemRangeChanged(size,listMessageModel.size());
+			chatAdapter.notifyDataSetChanged();
 
 		}
 	}
@@ -685,19 +684,8 @@ public class ChatActivity extends BaseActivity implements ChildEventListener, Vi
 		if(messageModel!=null){
 			int size = listMessageModel.size();
 			listMessageModel.add(messageModel);
-			chatAdapter.notifyItemRangeChanged(size,listMessageModel.size());
+			chatAdapter.notifyDataSetChanged();
 		}
-	}
-
-	private void getAllGroupData(String subjectName){
-		List<MessageModel> list = appDatabase.getMessageDao().getChatdataBySubject1(subjectName);
-		List<MessageModel> list1 = appDatabase.getMessageDao().getAllChat();
-
-		if(list!=null && list.size()>0){
-			listMessageModel.addAll(list);
-			refreshChatList(list);
-		}
-
 	}
 
 	private void showProgress(boolean isShow){

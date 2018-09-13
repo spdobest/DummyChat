@@ -104,6 +104,7 @@
     <dimen name="dimen_250dp">250dp</dimen>
     <dimen name="dimen_8sp">8sp</dimen>
     <dimen name="dimen_70dp">70dp</dimen>
+    <dimen name="dimen_9sp">9sp</dimen>
 
 
 </resources>

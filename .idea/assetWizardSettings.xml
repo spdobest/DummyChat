@@ -119,11 +119,11 @@
                           <map>
                             <entry key="assetSourceType" value="FILE" />
                             <entry key="color" value="d3d3d3" />
-                            <entry key="height" value="459" />
-                            <entry key="outputName" value="ic_forward" />
+                            <entry key="height" value="56" />
+                            <entry key="outputName" value="ic_pdf" />
                             <entry key="overrideSize" value="true" />
-                            <entry key="sourceFile" value="$USER_HOME$/Downloads/forward-arrow.svg" />
-                            <entry key="width" value="459" />
+                            <entry key="sourceFile" value="$USER_HOME$/Downloads/pdf.svg" />
+                            <entry key="width" value="56" />
                           </map>
                         </option>
                       </PersistentState>

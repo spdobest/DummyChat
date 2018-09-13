@@ -172,8 +172,6 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
         recyclerViewChat.setAdapter(groupChatAdapter);
 
 
-        getAllGroupData(groupName);
-
         if (CommonUtils.isInternetAvailable(this)) {
             getChatData();
         } else {
@@ -190,13 +188,13 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
                     //DataSnapshot of inner Childerns
                     MessageModel modelChat = innerDataSanpShot.getValue(MessageModel.class);
                     Log.i(TAG, "onDataChange: 1 " + modelChat.getSenderName() + " \n " + modelChat.getMessage());
-                    if (!PreferenceManager.getInstance(SubjectChatActivity.this).getIsChatExist()) {
+                    /*if (!PreferenceManager.getInstance(SubjectChatActivity.this).getIsChatExist()) {
                         listModelChat.add(modelChat);
                         // databaseHelper.insertChat( SubjectChatActivity.this, modelChat, PreferenceManager.getInstance( SubjectChatActivity.this ).getIsChatExist() );
-                    }
+                    }*/
                 }
-                groupChatAdapter.notifyDataSetChanged();
-                recyclerViewChat.smoothScrollToPosition(groupChatAdapter.getItemCount());
+                /*groupChatAdapter.notifyDataSetChanged();
+                recyclerViewChat.smoothScrollToPosition(groupChatAdapter.getItemCount());*/
             }
 
             @Override
@@ -307,9 +305,14 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
                     sendNewChat(message, GroupChatAdapter.ROW_TYPE_TEXT);
                 }
 
+                emojiEditText.setText("");
+
                 break;
             case R.id.imageViewEmoji:
                 emojIcon.ShowEmojIcon();
+                break;
+            case R.id.imageViewToolbarBack :
+                onBackPressed();
                 break;
         }
 
@@ -455,49 +458,6 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
     }
 
     private void uploadFile(Uri data) {
-
-       /* showProgress(true);
-
-        uploadFileReference = mStorageReference.child(Constants.FirebaseConstants.STORAGE_PATH_UPLOADS + System.currentTimeMillis() + ".pdf");
-        uploadFileReference.putFile(data)
-                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                        uploadFileReference.getDownloadUrl();
-
-                        showProgress(false);
-                       Uri  fileUri = taskSnapshot.getUploadSessionUri();
-                       String url = fileUri.toString();
-                           progressDialog.dismiss();
-                            String url = taskSnapshot.getDownloadUrl().toString();
-                            if(courseDataAfterUpload!=null ) {
-                             courseDataAfterUpload.setSyllabusFilePath(url);
-                            FirebaseUtility.updateCourse(courseDataAfterUpload);
-
-                            new TeacherDataManager(getActivity()).updateTeacherAddedCourse(courseDataAfterUpload);
-
-
-                        //  FirebaseUtility.updateTeacherProfileData(courseDataAfterUpload.getCourseName());
-                        Toast.makeText(SubjectChatActivity.this, "Success", Toast.LENGTH_LONG).show();
-                        //  }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception exception) {
-                        Toast.makeText(SubjectChatActivity.this, exception.getMessage(), Toast.LENGTH_LONG).show();
-                    }
-                })
-                .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                    @SuppressWarnings("VisibleForTests")
-                    @Override
-                    public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                        double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-                    }
-                });*/
-
         uploadFileReference = mStorageReference.child(Constants.FirebaseConstants.STORAGE_PATH_UPLOADS + System.currentTimeMillis() + ".pdf");
         UploadTask uploadTask = uploadFileReference.putFile(data);
 
@@ -523,9 +483,10 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
 
                     showProgress(false);
                     Uri downloadUri = task.getResult();
+                    pdfFilePath = downloadUri.toString();
                     sendNewChat("",GroupChatAdapter.ROW_TYPE_FILE);
                     Log.i(TAG, "onComplete: "+downloadUri.getPath());
-                    pdfFilePath = downloadUri.toString();
+
 
                 } else {
                     // Handle failures
@@ -533,7 +494,6 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
                 }
             }
         });
-
     }
 
 
@@ -548,7 +508,7 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
         MessageModel MessageModel = new MessageModel(
                 "",senderId, senderName, senderId, message, "" + System.currentTimeMillis(),
                 CommonUtils.getCurrentDate(), CommonUtils.getCurrentTime(),
-                groupChatAdapter.ROW_TYPE_TEXT, pdfFilePath, 0, 0, groupName,
+                messageType, pdfFilePath, 0, 0, groupName,
                 PreferenceManager.getInstance(this).getIsStudent() ? 0 : 1,
                 0
         );
@@ -583,8 +543,8 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
         if (listMessage != null && listMessage.size() > 0) {
             int size = listModelChat.size();
             listModelChat.addAll(listMessage);
-            groupChatAdapter.notifyItemRangeChanged(size, listModelChat.size());
-
+            groupChatAdapter.notifyDataSetChanged();
+            recyclerViewChat.scrollToPosition(listModelChat.size()-1);
         }
     }
 
@@ -592,7 +552,8 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
         if (messageModel != null) {
             int size = listModelChat.size();
             listModelChat.add(messageModel);
-            groupChatAdapter.notifyItemRangeChanged(size, listModelChat.size());
+            groupChatAdapter.notifyDataSetChanged();
+            recyclerViewChat.scrollToPosition(listModelChat.size()-1);
         }
     }
 
@@ -652,6 +613,7 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
     @Override
     public void onApproveClick(MessageModel messageModel) {
         if (!PreferenceManager.getInstance(this).getIsStudent()) {
+            showProgress(true);
             if (messageModel != null) {
                 String chatKey = messageModel.getChatKey();
                 messageModel.setIsAccepted(1);
@@ -660,12 +622,14 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
+                                showProgress(false);
                                 if (task.isSuccessful()) {
                                     Log.i(TAG, "onComplete: success ");
                                     showSnackbar("Updated Successfully", Snackbar.LENGTH_SHORT);
                                 } else {
                                     Log.i(TAG, "onComplete: fail");
                                     showSnackbar("Updated Successfully", Snackbar.LENGTH_LONG);
+                                    showProgress(false);
                                 }
                             }
                         });
@@ -678,7 +642,5 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
         if(messageModel!=null){
             Uri uri = Uri.parse(messageModel.getPathOrUrl());
         }
-
-
     }
 }
