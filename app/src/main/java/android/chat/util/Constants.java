@@ -25,7 +25,7 @@ public class Constants {
 	public static final  int PICK_PDF_CODE = 2342;
 
 	public static final short 	TAB_CONTACTS  	= 		1;
-	public static final short   TAB_CHAT	 	=		2;
+	public static final short   TAB_GROUP	 	=		2;
 
 	public static final String   TAB_NAME_CONTACT     	=		"Contacts";
 	public static final String   TAB_NAME_CHAT 			=		"Chat";
@@ -185,10 +185,9 @@ public class Constants {
 		int OTHER = 13;
 	}
 	public interface FirebaseConstants{
-		public static final String TABLE_USER 		= 	"users";
-		public static final String TABLE_CHAT 		= 	"chat";
-		public static final String TABLE_STUDENT 	= 	"student";
-		public static final String TABLE_TEACHER 	= 	"Teacher";
+		public static final String TABLE_CHAT 		= 	"ChatTable";
+		public static final String TABLE_STUDENT 	= 	"StudentTable";
+		public static final String TABLE_TEACHER 	= 	"TeacherTable";
 		// SUBJECT
 		public static final String TABLE_ANDROID 	= 	"Android";
 		public static final String TABLE_IPHONE 	= 	"Iphone";
@@ -199,5 +198,27 @@ public class Constants {
 
 		public static final String STORAGE_PATH_UPLOADS = "uploads/";
 		public static final String DATABASE_PATH_UPLOADS = "uploads";
+
+
+		String STUDENT_TABLE        = "Student-";
+		String TEACHER_TABLE        = "Teacher";
+		String TABLE_USER            = "user_table";
+		String ATTENDANCE_TABLE     = "Attendance-";
+		String COURSE_TABLE         = "Course";
+		String FIRSTYEAR            = "1stYear";
+		String SECOND_YEAR          = "2ndYear";
+		String THIRD_YEAR           = "3rdYear";
+		String FOURTH_YEAR          = "4thYear";
+
+		// key constants in database
+		String STUDENT_ID              = "studentId";
+		String EMAILID                 = "emailId";
+		String NAME                    = "name";
+		String MOBILENUMBER            = "mobileNumber";
+		String PASSWORD                = "password";
+		String SUBJECT                 = "subject";
+		String TEACHER_ID              = "teacherId";
+		String USER_ID                 = "userid";
+		String SUBJECT_NAME            = "subjectName";
 	}
 }

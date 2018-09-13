@@ -3,8 +3,7 @@ package android.chat.ui.dialogFragment;
 import android.chat.R;
 import android.chat.data.PreferenceManager;
 import android.chat.model.teacher.TeacherData;
-import android.chat.model.UserOrGroupDetails;
-import android.chat.room.entity.User;
+import android.chat.room.entity.UserOrGroupDetails;
 import android.chat.ui.activity.HomeActivity;
 import android.chat.ui.base.BaseLoginRegisterDialogFragment;
 import android.chat.util.ApplicationUtils;
@@ -130,7 +129,12 @@ public class RegisterDialogFragment extends BaseLoginRegisterDialogFragment impl
                         Toast.makeText(getActivity(), getString(R.string.please_enter_your_valid_email), Toast.LENGTH_LONG).show();
                     } else if (TextUtils.isEmpty(password)) {
                         Toast.makeText(getActivity(), getString(R.string.please_enter_your_password), Toast.LENGTH_LONG).show();
-                    }/* else if (TextUtils.isEmpty(loginType)) {
+                    }
+                    else if(getSelectedSubjectList().size() == 0){
+                        showError("Please Select atleast one Subject");
+                        showSubjectBottomsheet();
+                    }
+                    /* else if (TextUtils.isEmpty(loginType)) {
                         Toast.makeText(getActivity(), getString(R.string.please_select_studentorteacher), Toast.LENGTH_LONG).show();
                     } else if (TextUtils.isEmpty(selectedSubject)) {
                         Toast.makeText(getActivity(), getString(R.string.please_select_subject), Toast.LENGTH_LONG).show();
@@ -187,31 +191,25 @@ public class RegisterDialogFragment extends BaseLoginRegisterDialogFragment impl
                     edittextPassword.getText().toString().trim()
             );
 
+            /**
+             * String name, String email, String userid, String number,
+             String subjectList, int isGroup, int isTeacher
+             */
+
             if (radioStudent.isChecked()) {
-                UserOrGroupDetails userOrGroupDetails = new UserOrGroupDetails(userId, name, email, number, subjectList);
-                userOrGroupDetails.setUserid(userId);
-                userOrGroupDetails.setName(name);
-                userOrGroupDetails.setEmail(email);
-                userOrGroupDetails.setNumber(number);
-                userOrGroupDetails.setSubjectList(subjectList);
+                UserOrGroupDetails userOrGroupDetails = new UserOrGroupDetails(name,email,userId,number,subjectList,0,0);
 
                 mDatabase.child(Constants.FirebaseConstants.TABLE_STUDENT).child(userId).setValue(userOrGroupDetails);
-
+                mDatabase.child(Constants.FirebaseConstants.TABLE_USER).child(userId).setValue(userOrGroupDetails);
                 PreferenceManager.getInstance(getActivity()).setIsStudent(true);
             } else {
-                UserOrGroupDetails userOrGroupDetails = new UserOrGroupDetails(userId, name, email, number, subjectList);
-                userOrGroupDetails.setUserid(userId);
-                userOrGroupDetails.setName(name);
-                userOrGroupDetails.setEmail(email);
-                userOrGroupDetails.setNumber(number);
-                userOrGroupDetails.setSubjectList(subjectList);
+                UserOrGroupDetails userOrGroupDetails = new UserOrGroupDetails(name,email,userId,number,subjectList,0,1);
+
                 mDatabase.child(Constants.FirebaseConstants.TABLE_TEACHER).child(userId).setValue(userOrGroupDetails);
                 PreferenceManager.getInstance(getActivity()).setIsStudent(false);
+
+                mDatabase.child(Constants.FirebaseConstants.TABLE_USER).child(userId).setValue(userOrGroupDetails);
             }
-
-            User userInner = new User(userId, name, email, number, "", "");
-            mDatabase.child(Constants.FirebaseConstants.TABLE_USER).child(userId).setValue(userInner);
-
             getActivity().startActivity(new Intent(getActivity(), HomeActivity.class));
         }
         else{

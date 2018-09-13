@@ -6,7 +6,7 @@ import android.chat.listeners.OnFirebasseActionListener;
 import android.chat.model.student.StudentData;
 import android.chat.model.teacher.TeacherData;
 import android.chat.model.teacher.TeacherLocalData;
-import android.chat.model.UserOrGroupDetails;
+import android.chat.room.entity.UserOrGroupDetails;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -42,9 +42,6 @@ public class FirebaseUtility {
     private static List<StudentData> listStudents4thYear = new ArrayList<>();
     private static List<TeacherData> listTeacher = new ArrayList<>();
 
-   
-
-
     private static TeacherData teacherProfileData ;
     private static StudentData studentProfileData;
 
@@ -55,7 +52,7 @@ public class FirebaseUtility {
         teacherProfileData = teacherData;
         if(teacherData!=null){
             String userId = teacherData.getTeacherId();
-            ChatApplication.getFirebaseDatabaseReference().child(FirebaseConstants.TEACHER_TABLE).child(userId)
+            ChatApplication.getFirebaseDatabaseReference().child(Constants.FirebaseConstants.TEACHER_TABLE).child(userId)
                     .setValue(teacherData)
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
@@ -84,7 +81,7 @@ public class FirebaseUtility {
     public static void saveStudentProfile(final String studentId,String year){
 
         Query studentDetailsQuery = ChatApplication.getFirebaseDatabaseReference().
-                child(FirebaseConstants.STUDENT_TABLE+year).orderByChild(FirebaseConstants.STUDENT_ID).equalTo(studentId);
+                child(Constants.FirebaseConstants.STUDENT_TABLE+year).orderByChild(Constants.FirebaseConstants.STUDENT_ID).equalTo(studentId);
         studentDetailsQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -102,14 +99,14 @@ public class FirebaseUtility {
                 } else {
                     yearCount++;
                     if(yearCount==1){
-                        saveStudentProfile(studentId,FirebaseConstants.SECOND_YEAR);
+                        saveStudentProfile(studentId,Constants.FirebaseConstants.SECOND_YEAR);
                     }
                     else if(yearCount==2){
-                        saveStudentProfile(studentId,FirebaseConstants.THIRD_YEAR);
+                        saveStudentProfile(studentId,Constants.FirebaseConstants.THIRD_YEAR);
 
                     }
                     else{
-                        saveStudentProfile(studentId,FirebaseConstants.FOURTH_YEAR);
+                        saveStudentProfile(studentId,Constants.FirebaseConstants.FOURTH_YEAR);
                     }
 
                     Log.i(TAG, " name does'nt exists!");
@@ -138,13 +135,13 @@ public class FirebaseUtility {
     public static List<StudentData> getStudentListByYears(String year){
 
         switch (year){
-            case FirebaseConstants.FIRSTYEAR :
+            case Constants.FirebaseConstants.FIRSTYEAR :
                 return listStudentsFirstYear;
-            case FirebaseConstants.SECOND_YEAR :
+            case Constants.FirebaseConstants.SECOND_YEAR :
                 return listStudentsSecondYear;
-            case FirebaseConstants.THIRD_YEAR :
+            case Constants.FirebaseConstants.THIRD_YEAR :
                 return listStudents3rdYear;
-            case FirebaseConstants.FOURTH_YEAR :
+            case Constants.FirebaseConstants.FOURTH_YEAR :
                 return listStudents4thYear;
 
         }
@@ -172,7 +169,7 @@ public class FirebaseUtility {
                 studentData.setStudentId(userId);
             }
 
-            ChatApplication.getFirebaseDatabaseReference().child(FirebaseConstants.STUDENT_TABLE+studentData.getYear()).child(userId)
+            ChatApplication.getFirebaseDatabaseReference().child(Constants.FirebaseConstants.STUDENT_TABLE+studentData.getYear()).child(userId)
                     .setValue(studentData)
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
@@ -201,7 +198,7 @@ public class FirebaseUtility {
                 teacherData.setTeacherId(userId);
             }
 
-            ChatApplication.getFirebaseDatabaseReference().child(FirebaseConstants.TEACHER_TABLE).child(userId)
+            ChatApplication.getFirebaseDatabaseReference().child(Constants.FirebaseConstants.TEACHER_TABLE).child(userId)
                     .setValue(teacherData)
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
@@ -248,16 +245,16 @@ public class FirebaseUtility {
     public static void getStudentByYear(final String year,final OnFirebasseActionListener onFirebasseActionListen ){
 
         switch (year){
-            case FirebaseConstants.FIRSTYEAR :
+            case Constants.FirebaseConstants.FIRSTYEAR :
                 listStudentsFirstYear.clear();
                 break;
-            case FirebaseConstants.SECOND_YEAR :
+            case Constants.FirebaseConstants.SECOND_YEAR :
                 listStudentsSecondYear.clear();
                 break;
-            case FirebaseConstants.THIRD_YEAR :
+            case Constants.FirebaseConstants.THIRD_YEAR :
                 listStudents3rdYear.clear();
                 break;
-            case FirebaseConstants.FOURTH_YEAR :
+            case Constants.FirebaseConstants.FOURTH_YEAR :
                 listStudents4thYear.clear();
                 break;
 
@@ -267,23 +264,23 @@ public class FirebaseUtility {
         DatabaseReference database = FirebaseDatabase.getInstance().getReference();
      //   DatabaseReference ref = database.child("profiles");
 
-        database.child(FirebaseConstants.STUDENT_TABLE+year).addValueEventListener(new ValueEventListener() {
+        database.child(Constants.FirebaseConstants.STUDENT_TABLE+year).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot noteDataSnapshot : dataSnapshot.getChildren()) {
                      StudentData studentData = noteDataSnapshot.getValue(StudentData.class);
 
                     switch (year){
-                        case FirebaseConstants.FIRSTYEAR :
+                        case Constants.FirebaseConstants.FIRSTYEAR :
                             listStudentsFirstYear.add(studentData);
                             break;
-                        case FirebaseConstants.SECOND_YEAR :
+                        case Constants.FirebaseConstants.SECOND_YEAR :
                             listStudentsSecondYear.add(studentData);
                             break;
-                        case FirebaseConstants.THIRD_YEAR :
+                        case Constants.FirebaseConstants.THIRD_YEAR :
                             listStudents3rdYear.add(studentData);
                             break;
-                        case FirebaseConstants.FOURTH_YEAR :
+                        case Constants.FirebaseConstants.FOURTH_YEAR :
                             listStudents4thYear.add(studentData);
                             break;
                     }
@@ -330,16 +327,16 @@ public class FirebaseUtility {
                     StudentData studentData = new Gson().fromJson(obj, StudentData.class);
 
                     switch (year){
-                        case FirebaseConstants.FIRSTYEAR :
+                        case Constants.FirebaseConstants.FIRSTYEAR :
                             listStudentsFirstYear.add(studentData);
                             break;
-                        case FirebaseConstants.SECOND_YEAR :
+                        case Constants.FirebaseConstants.SECOND_YEAR :
                              listStudentsSecondYear.add(studentData);
                             break;
-                        case FirebaseConstants.THIRD_YEAR :
+                        case Constants.FirebaseConstants.THIRD_YEAR :
                              listStudents3rdYear.add(studentData);
                             break;
-                        case FirebaseConstants.FOURTH_YEAR :
+                        case Constants.FirebaseConstants.FOURTH_YEAR :
                              listStudents4thYear.add(studentData);
                             break;
                     }
@@ -385,7 +382,7 @@ public class FirebaseUtility {
 
 
 
-       /*ChatApplication.getFirebaseDatabaseReference().child(FirebaseConstants.STUDENT_TABLE+year).orderByChild("year")
+       /*ChatApplication.getFirebaseDatabaseReference().child(Constants.FirebaseConstants.STUDENT_TABLE+year).orderByChild("year")
                 .equalTo(year).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -441,7 +438,7 @@ public class FirebaseUtility {
 
 
 
-       /*ChatApplication.getFirebaseDatabaseReference().child(FirebaseConstants.STUDENT_TABLE+year).orderByChild("year")
+       /*ChatApplication.getFirebaseDatabaseReference().child(Constants.FirebaseConstants.STUDENT_TABLE+year).orderByChild("year")
                 .equalTo(year).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -464,33 +461,13 @@ public class FirebaseUtility {
      */
     public static List<String> getYearList(){
         List<String> listYears = new ArrayList<>();
-        listYears.add(FirebaseConstants.FIRSTYEAR);
-        listYears.add(FirebaseConstants.SECOND_YEAR);
-        listYears.add(FirebaseConstants.THIRD_YEAR);
-        listYears.add(FirebaseConstants.FOURTH_YEAR);
+        listYears.add(Constants.FirebaseConstants.FIRSTYEAR);
+        listYears.add(Constants.FirebaseConstants.SECOND_YEAR);
+        listYears.add(Constants.FirebaseConstants.THIRD_YEAR);
+        listYears.add(Constants.FirebaseConstants.FOURTH_YEAR);
         return listYears;
     }
-
-    public interface FirebaseConstants{
-        String STUDENT_TABLE        = "Student-";
-        String TEACHER_TABLE        = "Teacher";
-        String ATTENDANCE_TABLE     = "Attendance-";
-        String COURSE_TABLE         = "Course";
-        String FIRSTYEAR            = "1stYear";
-        String SECOND_YEAR          = "2ndYear";
-        String THIRD_YEAR           = "3rdYear";
-        String FOURTH_YEAR          = "4thYear";
-
-        // key constants in database
-        String STUDENT_ID              = "studentId";
-        String EMAILID                 = "emailId";
-        String NAME                    = "name";
-        String MOBILENUMBER            = "mobileNumber";
-        String PASSWORD                = "password";
-        String SUBJECT                 = "subject";
-        String TEACHER_ID              = "teacherId";
-        String SUBJECT_NAME              = "subjectName";
-    }
+ 
 
     /**
      * THIS IS ONLY FOR TESTING
@@ -531,7 +508,7 @@ public class FirebaseUtility {
                                        final OnFirebasseActionListener onFirebasseActionListener){
         // teacherId = "-L9YZfr4aq4SLa7Uq2-a";
         Query teacherDetailsQuery = ChatApplication.getFirebaseDatabaseReference().
-                child(FirebaseConstants.TEACHER_TABLE).orderByChild(FirebaseConstants.TEACHER_ID).equalTo(teacherId);
+                child(Constants.FirebaseConstants.TABLE_USER).orderByChild(Constants.FirebaseConstants.USER_ID).equalTo(teacherId);
         teacherDetailsQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -542,15 +519,26 @@ public class FirebaseUtility {
                     for (DataSnapshot child : dataSnapshot.getChildren()) {
                         teacherData = child.getValue(UserOrGroupDetails.class);
 
-                        if(teacherData!=null && !TextUtils.isEmpty(teacherData.getSubjectList())){
-                           PreferenceManager.getInstance(mContext).setSubjectList(teacherData.getSubjectList());
-                        }
+                        if(teacherData!=null ){
+                            if(!TextUtils.isEmpty(teacherData.getSubjectList())) {
+                                PreferenceManager.getInstance(mContext).setSubjectList(teacherData.getSubjectList());
+                            }
+
 
                         PreferenceManager.getInstance(mContext).setUserId(teacherId);
                         PreferenceManager.getInstance(mContext).setUserLoggedIN(true);
                         if(onFirebasseActionListener!=null){
                             onFirebasseActionListener.onSuccess("");
                         }
+
+                        if(teacherData.isTeacher == 0){
+                            PreferenceManager.getInstance(mContext).setIsStudent(true);
+                        }
+                        else{
+                            PreferenceManager.getInstance(mContext).setIsStudent(false);
+                        }
+                        }
+
 
                     }
                     String name = teacherData.getName();

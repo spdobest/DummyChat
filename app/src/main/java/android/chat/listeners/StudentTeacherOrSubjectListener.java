@@ -1,6 +1,6 @@
 package android.chat.listeners;
 
-import android.chat.model.UserOrGroupDetails;
+import android.chat.room.entity.UserOrGroupDetails;
 
 public interface StudentTeacherOrSubjectListener {
     void onSelectStudentOrTeacher(UserOrGroupDetails userOrGroupDetails);

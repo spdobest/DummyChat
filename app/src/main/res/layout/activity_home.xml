@@ -26,6 +26,8 @@
             android:layout_height="wrap_content"
             android:background="@color/colorPrimary"
             style="@style/Base.Widget.Design.TabLayout"
+            android:layout_gravity="center"
+            app:tabGravity="fill"
             />
 
     </android.support.design.widget.AppBarLayout>

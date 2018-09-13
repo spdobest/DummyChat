@@ -1,34 +1,69 @@
-package android.chat.model;
+package android.chat.room.entity;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+@Entity(tableName = "UserGroupTable")
 public class UserOrGroupDetails implements Parcelable {
 
-    public String name;
-    public String email;
-    public String userid;
-    public String number;
-    public String subjectList;
-    public boolean isGroup;
+    @PrimaryKey(autoGenerate = true)
+    public int id;
 
-    public boolean isGroup() {
+    @ColumnInfo(name = "name")
+    public String name;
+
+    @ColumnInfo(name = "emailId")
+    public String email;
+
+    @ColumnInfo(name = "userId")
+    public String userid;
+
+    @ColumnInfo(name = "mobileNumber")
+    public String number;
+
+    @ColumnInfo(name = "subjectList")
+    public String subjectList;
+
+    @ColumnInfo(name = "isGroup")
+    public int isGroup;
+
+    @ColumnInfo(name = "isTeacher")
+    public int isTeacher;
+
+    public int isTeacher() {
+        return isTeacher;
+    }
+
+    public void setTeacher(int teacher) {
+        isTeacher = teacher;
+    }
+
+    public int isGroup() {
         return isGroup;
     }
 
-    public void setGroup(boolean group) {
+    public void setGroup(int group) {
         isGroup = group;
     }
+
 
     public UserOrGroupDetails() {
     }
 
-    public UserOrGroupDetails(String userId, String name, String email, String number, String subjectList) {
+    @Ignore
+    public UserOrGroupDetails(String name, String email, String userid, String number,
+                              String subjectList, int isGroup, int isTeacher) {
         this.name = name;
         this.email = email;
-        this.userid = userId;
+        this.userid = userid;
         this.number = number;
         this.subjectList = subjectList;
+        this.isGroup = isGroup;
+        this.isTeacher = isTeacher;
     }
 
     public String getSubjectList() {
@@ -80,6 +115,7 @@ public class UserOrGroupDetails implements Parcelable {
         return 0;
     }
 
+    @Ignore
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.name);
@@ -87,18 +123,20 @@ public class UserOrGroupDetails implements Parcelable {
         dest.writeString(this.userid);
         dest.writeString(this.number);
         dest.writeString(this.subjectList);
-        dest.writeByte(this.isGroup ? (byte) 1 : (byte) 0);
+        dest.writeInt(this.isGroup);
     }
 
+    @Ignore
     protected UserOrGroupDetails(Parcel in) {
         this.name = in.readString();
         this.email = in.readString();
         this.userid = in.readString();
         this.number = in.readString();
         this.subjectList = in.readString();
-        this.isGroup = in.readByte() != 0;
+        this.isGroup = in.readInt();
     }
 
+    @Ignore
     public static final Creator<UserOrGroupDetails> CREATOR = new Creator<UserOrGroupDetails>() {
         @Override
         public UserOrGroupDetails createFromParcel(Parcel source) {

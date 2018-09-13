@@ -5,6 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:emojicon="http://schemas.android.com/tools"
     android:id="@+id/root"
+    android:background="@color/color_D3D3D3"
     >
 
     <android.support.v7.widget.Toolbar
@@ -59,7 +60,7 @@
         android:id="@+id/relativeLayoutBottom"
         android:layout_width="match_parent"
         android:layout_alignParentBottom="true"
-        android:layout_height="wrap_content"
+        android:layout_height="45dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -103,12 +104,12 @@
 
         <android.support.v7.widget.AppCompatImageView
             android:id="@+id/imageViewSend"
-            android:layout_width="@dimen/dimen_35dp"
-            android:layout_height="@dimen/dimen_35dp"
+            android:layout_width="@dimen/dimen_40dp"
+            android:layout_height="@dimen/dimen_40dp"
             android:layout_centerVertical="true"
             android:layout_alignParentEnd="true"
             android:padding="4dp"
-            android:src="@android:drawable/ic_menu_send" />
+            android:src="@drawable/ic_forward" />
 
         <!-- <CheckBox
              android:id="@+id/use_system_default"
@@ -133,5 +134,15 @@
              emojicon:emojiconUseSystemDefault="true" />-->
 
     </RelativeLayout>
+
+
+    <ProgressBar
+        android:id="@+id/progressLoading"
+        android:layout_width="@dimen/dimen_50dp"
+        android:layout_height="@dimen/dimen_50dp"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        />
+
 
 </RelativeLayout>

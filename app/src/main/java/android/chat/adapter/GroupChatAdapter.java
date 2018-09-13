@@ -2,10 +2,11 @@ package android.chat.adapter;
 
 import android.chat.R;
 import android.chat.data.PreferenceManager;
-import android.chat.model.chat.ModelChat;
-import android.chat.room.entity.ChatDto;
+import android.chat.listeners.OnActionListener;
+import android.chat.room.entity.MessageModel;
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
@@ -17,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -44,16 +46,19 @@ public class GroupChatAdapter extends RecyclerView.Adapter< GroupChatAdapter.Vie
 
     LayoutInflater layoutInflater;
     private Context           context;
-    private List<ChatDto> listData;
+    private List<MessageModel> listData;
     private String            userId;
     private String            userName;
+    private OnActionListener onActionListener;
 
-    public GroupChatAdapter( Context context, List< ChatDto > listData, String userId ) {
+    public GroupChatAdapter( Context context, List< MessageModel > listData,
+                             String userId, OnActionListener mOnActionListener ) {
         this.context = context;
         this.listData = listData;
         layoutInflater = LayoutInflater.from( context );
         this.userId = userId;
         userName = PreferenceManager.getInstance( context ).getUserName();
+        this.onActionListener = mOnActionListener;
         Log.i( TAG, "GroupChatAdapter: user id " + userId + " size " + listData.size() );
     }
 
@@ -86,9 +91,9 @@ public class GroupChatAdapter extends RecyclerView.Adapter< GroupChatAdapter.Vie
         }
         else if ( viewType == ROW_TYPE_FILE ){
             v = LayoutInflater.from( parent.getContext() )
-                    .inflate( R.layout.itemview_chat_video, parent, false );
+                    .inflate( R.layout.itemview_doc, parent, false );
 
-            return new ViewHolderVideo( v );
+            return new ViewHolderDoc( v );
         }
         else{
             v = LayoutInflater.from( parent.getContext() )
@@ -116,17 +121,17 @@ public class GroupChatAdapter extends RecyclerView.Adapter< GroupChatAdapter.Vie
 
     @Override
     public void onBindViewHolder( ViewHolderParent holder, int position ) {
-        final ChatDto modelChat = listData.get( position );
+        final MessageModel modelChat = listData.get( position );
         switch ( holder.getItemViewType() ) {
             case ROW_TYPE_TEXT:
                 final ViewHolderText viewHolderText = ( ViewHolderText ) holder;
-                viewHolderText.textViewUserNameChatText.setText( modelChat.senderName );
-                viewHolderText.textViewUserMessageChatText.setText( modelChat.message );
-                viewHolderText.textViewUserTimeChatText.setText( modelChat.time );
+                viewHolderText.textViewUserNameChatText.setText( modelChat.getSenderName() );
+                viewHolderText.textViewUserMessageChatText.setText( modelChat.getMessage() );
+                viewHolderText.textViewUserTimeChatText.setText( modelChat.getMessageTime() );
 
                 Log.i( TAG, "onBindViewHolder: "+userId.equalsIgnoreCase( modelChat.getSenderId() ) );
 
-                if ( this.userId.equalsIgnoreCase( modelChat.getSenderId() ) ) {
+                if ( userId.equalsIgnoreCase(modelChat.getCurrentUserId()) ) {
                     viewHolderText.linearLayoutChatBubble.setBackground(ContextCompat.getDrawable(viewHolderText.relativeLayoutRootChatText.getContext(),
                             R.drawable.drawable_chatbuble_send));
                     viewHolderText.relativeLayoutRootChatText.setGravity( Gravity.RIGHT );
@@ -145,11 +150,11 @@ public class GroupChatAdapter extends RecyclerView.Adapter< GroupChatAdapter.Vie
 
             case ROW_TYPE_IMAGE:
                 final ViewHolderImage viewHolderImage = ( ViewHolderImage ) holder;
-                Log.i( TAG, "onBindViewHolder: image PATH  "+modelChat.PathOrUrl );
+                Log.i( TAG, "onBindViewHolder: image PATH  "+modelChat.getPathOrUrl() );
                 viewHolderImage.textViewUserNameChatImage.setText( modelChat.getSenderName() );
-                viewHolderImage.textViewUserMessageChatImage.setText( modelChat.message );
-                viewHolderImage.textViewUserTimeChatImage.setText( getTimeFromDate( modelChat.time ) );
-                if ( this.userId.equalsIgnoreCase( modelChat.getSenderId() ) ) {
+                viewHolderImage.textViewUserMessageChatImage.setText( modelChat.getMessage() );
+                viewHolderImage.textViewUserTimeChatImage.setText( getTimeFromDate( modelChat.getMessageTime() ) );
+                if (userId.equalsIgnoreCase(modelChat.getCurrentUserId())) {
                     viewHolderImage.relativeLayoutRootChatImage.setGravity( Gravity.RIGHT );
                     viewHolderImage.imageViewRightArrowChatImage.setVisibility( View.VISIBLE );
                     viewHolderImage.imageViewLeftArrowChatImage.setVisibility( View.GONE );
@@ -161,10 +166,10 @@ public class GroupChatAdapter extends RecyclerView.Adapter< GroupChatAdapter.Vie
                 }
                 if(modelChat.isDownloaded == 0)
                     Picasso.with(context)
-                            .load(modelChat.PathOrUrl)
+                            .load(modelChat.getPathOrUrl())
                             .into(viewHolderImage.imageViewChatImage);
                 else
-                    loadImageFromSdcard(modelChat.PathOrUrl,viewHolderImage.imageViewChatImage);
+                    loadImageFromSdcard(modelChat.getPathOrUrl(),viewHolderImage.imageViewChatImage);
                 viewHolderImage.imageViewChatImage.setOnClickListener( new View.OnClickListener() {
                     @Override
                     public void onClick( View view ) {
@@ -177,8 +182,8 @@ public class GroupChatAdapter extends RecyclerView.Adapter< GroupChatAdapter.Vie
             case ROW_TYPE_VIDEO:
                 final ViewHolderVideo viewHolderVideo = ( ViewHolderVideo ) holder;
                 viewHolderVideo.textViewUserNameChatVideo.setText( modelChat.getSenderName() );
-                viewHolderVideo.textViewUserMessageChatVideo.setText( modelChat.message );
-                if ( this.userId.equalsIgnoreCase( modelChat.getSenderId() ) ) {
+                viewHolderVideo.textViewUserMessageChatVideo.setText( modelChat.getMessage() );
+                if ( userId.equalsIgnoreCase(modelChat.getCurrentUserId())  ) {
                     viewHolderVideo.relativeLayoutRootChatVideo.setGravity( Gravity.RIGHT );
                     viewHolderVideo.imageViewRightArrowChatVideo.setVisibility( View.VISIBLE );
                     viewHolderVideo.imageViewLeftArrowChatVideo.setVisibility( View.GONE );
@@ -189,12 +194,52 @@ public class GroupChatAdapter extends RecyclerView.Adapter< GroupChatAdapter.Vie
                     viewHolderVideo.imageViewRightArrowChatVideo.setVisibility( View.GONE );
                 }
                 Picasso.with(context)
-                        .load(modelChat.PathOrUrl)
+                        .load(modelChat.getPathOrUrl())
                         .into(viewHolderVideo.imageViewChatVideo);
+                break;
+            case ROW_TYPE_FILE :
+                final ViewHolderDoc viewHolderDoc = (ViewHolderDoc) holder;
+                viewHolderDoc.textViewUserTimeChatVideo.setText( modelChat.getMessageTime());
+
+                if(modelChat.isTeacher == 1) {
+                    if (modelChat.getIsAccepted() == 1) {
+                        viewHolderDoc.buttonApprove.setText("Approved");
+                    } else {
+                        viewHolderDoc.buttonApprove.setText("Approve");
+                    }
+                }
+                else{
+                    if (modelChat.getIsAccepted() == 1) {
+                        viewHolderDoc.buttonApprove.setText("Approved");
+                    } else {
+                        viewHolderDoc.buttonApprove.setText("Waiting to approve");
+                    }
+                }
+                viewHolderDoc.imageViewDownloadOrCancelVideo.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if(modelChat.getIsTeacher()==0) {
+                            if (modelChat.getIsAccepted() == 1) {
+                                onActionListener.onDownloadClick(modelChat);
+                            } else {
+                                Toast.makeText(context, "File not Approved By teacher", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }
+                });
+
+                viewHolderDoc.buttonApprove.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if(modelChat.getIsAccepted() == 1 && modelChat.getIsTeacher() == 1) {
+                            onActionListener.onApproveClick(modelChat);
+                        }
+                    }
+                });
                 break;
             case ROW_TYPE_DATE :
                 final ViewHolderDate viewHolderDate = (ViewHolderDate) holder;
-                viewHolderDate.textViewChatDate.setText( modelChat.time );
+                viewHolderDate.textViewChatDate.setText( modelChat.getMessageDate() );
                 break;
         }
     }
@@ -286,6 +331,34 @@ public class GroupChatAdapter extends RecyclerView.Adapter< GroupChatAdapter.Vie
             imageViewDownloadOrCancelVideo = ( AppCompatImageView ) itemView.findViewById( R.id.imageViewDownloadOrCancelVideo );
             progressBarDownloadPercentageVideo = ( ProgressBar ) itemView.findViewById( R.id.progressBarDownloadPercentageVideo );
             textViewUserTimeChatVideo = ( AppCompatTextView ) itemView.findViewById( R.id.textViewUserTimeChatVideo );
+        }
+    }
+    public class ViewHolderDoc extends ViewHolderParent {
+        private RelativeLayout     relativeLayoutRootChatVideo;
+        private AppCompatImageView imageViewLeftArrowChatVideo;
+        private AppCompatImageView imageViewRightArrowChatVideo;
+        private AppCompatTextView  textViewUserNameChatVideo;
+        private EmojiconTextView   textViewUserMessageChatVideo;
+        private RelativeLayout     relativeLayoutVideoChat;
+        private AppCompatImageView imageViewChatVideo;
+        private AppCompatImageView imageViewDownloadOrCancelVideo;
+        private ProgressBar progressBarDownloadPercentageVideo;
+        private AppCompatTextView textViewUserTimeChatVideo;
+        private AppCompatButton buttonApprove;
+
+        public ViewHolderDoc( View itemView ) {
+            super( itemView );
+            relativeLayoutRootChatVideo = ( RelativeLayout ) itemView.findViewById( R.id.relativeLayoutRootChatVideo );
+            relativeLayoutVideoChat = ( RelativeLayout ) itemView.findViewById( R.id.relativeLayoutVideoChat );
+            imageViewLeftArrowChatVideo = ( AppCompatImageView ) itemView.findViewById( R.id.imageViewLeftArrowChatVideo );
+            imageViewRightArrowChatVideo = ( AppCompatImageView ) itemView.findViewById( R.id.imageViewRightArrowChatVideo );
+            textViewUserNameChatVideo = ( AppCompatTextView ) itemView.findViewById( R.id.textViewUserNameChatVideo );
+            textViewUserMessageChatVideo = ( EmojiconTextView ) itemView.findViewById( R.id.textViewUserMessageChatVideo );
+            imageViewChatVideo = ( AppCompatImageView ) itemView.findViewById( R.id.imageViewChatVideo );
+            imageViewDownloadOrCancelVideo = ( AppCompatImageView ) itemView.findViewById( R.id.imageViewDownloadOrCancelVideo );
+            progressBarDownloadPercentageVideo = ( ProgressBar ) itemView.findViewById( R.id.progressBarDownloadPercentageVideo );
+            textViewUserTimeChatVideo = ( AppCompatTextView ) itemView.findViewById( R.id.textViewUserTimeChatVideo );
+            buttonApprove = itemView.findViewById( R.id.buttonApprove );
         }
     }
 

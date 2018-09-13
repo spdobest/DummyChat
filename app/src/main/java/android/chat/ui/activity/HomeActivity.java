@@ -94,7 +94,7 @@ public class HomeActivity extends AppCompatActivity {
 
         HomeTabFragment homeTabFragmentChat = new HomeTabFragment();
         Bundle bundleTeacher = new Bundle();
-        bundleTeacher.putShort(Constants.BundleKeys.TAB_TYPE,Constants.TAB_CHAT);
+        bundleTeacher.putShort(Constants.BundleKeys.TAB_TYPE,Constants.TAB_GROUP);
         homeTabFragmentChat.setArguments(bundleTeacher);
 
         adapter.addFragment(homeTabFragmentContacts , Constants.TAB_NAME_CONTACT );

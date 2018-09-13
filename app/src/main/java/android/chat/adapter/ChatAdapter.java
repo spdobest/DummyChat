@@ -2,9 +2,10 @@ package android.chat.adapter;
 
 import android.chat.R;
 import android.chat.data.PreferenceManager;
-import android.chat.model.chat.ModelChat;
+import android.chat.room.entity.MessageModel;
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
@@ -43,11 +44,11 @@ public class ChatAdapter extends RecyclerView.Adapter< ChatAdapter.ViewHolderPar
 
 	LayoutInflater layoutInflater;
 	private Context           context;
-	private List<ModelChat> listData;
+	private List<MessageModel> listData;
 	private String            userId;
 	private String            userName;
 
-	public ChatAdapter( Context context, List< ModelChat > listData, String userId ) {
+	public ChatAdapter(Context context, List<MessageModel> listData, String userId ) {
 		this.context = context;
 		this.listData = listData;
 		layoutInflater = LayoutInflater.from( context );
@@ -83,49 +84,33 @@ public class ChatAdapter extends RecyclerView.Adapter< ChatAdapter.ViewHolderPar
 
 			return new ViewHolderVideo( v );
 		}
-		else if ( viewType == ROW_TYPE_FILE ){
+		/*else if ( viewType == ROW_TYPE_FILE ){
 			v = LayoutInflater.from( parent.getContext() )
-					.inflate( R.layout.itemview_chat_video, parent, false );
+					.inflate( R.layout.itemview_doc, parent, false );
 
-			return new ViewHolderVideo( v );
-		}
+			return new ViewHolderDoc( v );
+		}*/
 		else{
 			v = LayoutInflater.from( parent.getContext() )
 					.inflate( R.layout.itemview_chat_date, parent, false );
 
 			return new ViewHolderDate( v );
 		}
-
-		/*ViewHolderParent viewHolderParent = null;
-		View             viewHome;
-		switch ( viewType ) {
-			case ROW_TYPE_TEXT:
-				viewHome = LayoutInflater.from( context )
-						.inflate( R.layout.itemview_chat_text, parent, false );
-				viewHolderParent = new ViewHolderText( viewHome );
-				break;
-			case ROW_TYPE_IMAGE:
-				viewHome = LayoutInflater.from( context )
-						.inflate( R.layout.itemview_chat_text, parent, false );
-				viewHolderParent = new ViewHolderImage( viewHome );
-				break;
-		}
-		return viewHolderParent;*/
 	}
 
 	@Override
 	public void onBindViewHolder( ViewHolderParent holder, int position ) {
-		final ModelChat modelChat = listData.get( position );
+		final MessageModel messageModel = listData.get( position );
 		switch ( holder.getItemViewType() ) {
 			case ROW_TYPE_TEXT:
 				final ViewHolderText viewHolderText = ( ViewHolderText ) holder;
-				viewHolderText.textViewUserNameChatText.setText( modelChat.userName );
-				viewHolderText.textViewUserMessageChatText.setText( modelChat.message );
-				viewHolderText.textViewUserTimeChatText.setText( modelChat.time );
+				viewHolderText.textViewUserNameChatText.setText( messageModel.getSenderName() );
+				viewHolderText.textViewUserMessageChatText.setText( messageModel.getMessage() );
+				viewHolderText.textViewUserTimeChatText.setText( messageModel.getMessageTime() );
 
-				Log.i( TAG, "onBindViewHolder: "+userId.equalsIgnoreCase( modelChat.userId ) );
+				Log.i( TAG, "onBindViewHolder: "+userId.equalsIgnoreCase( messageModel.getSenderId() ) );
 
-				if ( this.userId.equalsIgnoreCase( modelChat.userId ) ) {
+				if ( messageModel.getCurrentUserId().equalsIgnoreCase(userId) ) {
 					viewHolderText.linearLayoutChatBubble.setBackground(ContextCompat.getDrawable(viewHolderText.relativeLayoutRootChatText.getContext(),
 							R.drawable.drawable_chatbuble_send));
 					viewHolderText.relativeLayoutRootChatText.setGravity( Gravity.RIGHT );
@@ -144,11 +129,11 @@ public class ChatAdapter extends RecyclerView.Adapter< ChatAdapter.ViewHolderPar
 
 			case ROW_TYPE_IMAGE:
 				final ViewHolderImage viewHolderImage = ( ViewHolderImage ) holder;
-				Log.i( TAG, "onBindViewHolder: image PATH  "+modelChat.PathOrUrl );
-				viewHolderImage.textViewUserNameChatImage.setText( modelChat.userName );
-				viewHolderImage.textViewUserMessageChatImage.setText( modelChat.message );
-				viewHolderImage.textViewUserTimeChatImage.setText( getTimeFromDate( modelChat.time ) );
-				if ( this.userId.equalsIgnoreCase( modelChat.userId ) ) {
+				Log.i( TAG, "onBindViewHolder: image PATH  "+messageModel.getPathOrUrl() );
+				viewHolderImage.textViewUserNameChatImage.setText( messageModel.getSenderName() );
+				viewHolderImage.textViewUserMessageChatImage.setText( messageModel.getMessage() );
+				viewHolderImage.textViewUserTimeChatImage.setText( getTimeFromDate( messageModel.getMessageTime() ) );
+				if ( messageModel.getCurrentUserId().equalsIgnoreCase(userId) ) {
 					viewHolderImage.relativeLayoutRootChatImage.setGravity( Gravity.RIGHT );
 					viewHolderImage.imageViewRightArrowChatImage.setVisibility( View.VISIBLE );
 					viewHolderImage.imageViewLeftArrowChatImage.setVisibility( View.GONE );
@@ -158,16 +143,16 @@ public class ChatAdapter extends RecyclerView.Adapter< ChatAdapter.ViewHolderPar
 					viewHolderImage.imageViewLeftArrowChatImage.setVisibility( View.VISIBLE );
 					viewHolderImage.imageViewRightArrowChatImage.setVisibility( View.GONE );
 				}
-				if(modelChat.isDownloaded == 0)
+				if(messageModel.isDownloaded == 0)
 					Picasso.with(context)
-						.load(modelChat.PathOrUrl)
+						.load(messageModel.getPathOrUrl())
 						.into(viewHolderImage.imageViewChatImage);
 				else
-					loadImageFromSdcard(modelChat.PathOrUrl,viewHolderImage.imageViewChatImage);
+					loadImageFromSdcard(messageModel.getPathOrUrl(),viewHolderImage.imageViewChatImage);
 				viewHolderImage.imageViewChatImage.setOnClickListener( new View.OnClickListener() {
 					@Override
 					public void onClick( View view ) {
-						// ImageVideoDialogFragment.newInstance( false,ImageVideoDialogFragment.FILE_TYPE_IMAGE, modelChat.PathOrUrl ).show( (( AppCompatActivity)context).getSupportFragmentManager(), ImageVideoDialogFragment.TAG );
+						// ImageVideoDialogFragment.newInstance( false,ImageVideoDialogFragment.FILE_TYPE_IMAGE, MessageModel.PathOrUrl ).show( (( AppCompatActivity)context).getSupportFragmentManager(), ImageVideoDialogFragment.TAG );
 					}
 				} );
 
@@ -175,9 +160,9 @@ public class ChatAdapter extends RecyclerView.Adapter< ChatAdapter.ViewHolderPar
 				break;
 			case ROW_TYPE_VIDEO:
 				final ViewHolderVideo viewHolderVideo = ( ViewHolderVideo ) holder;
-				viewHolderVideo.textViewUserNameChatVideo.setText( modelChat.userName );
-				viewHolderVideo.textViewUserMessageChatVideo.setText( modelChat.message );
-				if ( this.userId.equalsIgnoreCase( modelChat.userId ) ) {
+				viewHolderVideo.textViewUserNameChatVideo.setText( messageModel.getSenderName() );
+				viewHolderVideo.textViewUserMessageChatVideo.setText( messageModel.getMessage() );
+				if ( messageModel.getCurrentUserId().equalsIgnoreCase(userId) ) {
 					viewHolderVideo.relativeLayoutRootChatVideo.setGravity( Gravity.RIGHT );
 					viewHolderVideo.imageViewRightArrowChatVideo.setVisibility( View.VISIBLE );
 					viewHolderVideo.imageViewLeftArrowChatVideo.setVisibility( View.GONE );
@@ -188,13 +173,24 @@ public class ChatAdapter extends RecyclerView.Adapter< ChatAdapter.ViewHolderPar
 					viewHolderVideo.imageViewRightArrowChatVideo.setVisibility( View.GONE );
 				}
 				Picasso.with(context)
-						.load(modelChat.PathOrUrl)
+						.load(messageModel.getPathOrUrl())
 						.into(viewHolderVideo.imageViewChatVideo);
 				break;
 			case ROW_TYPE_DATE :
 				final ViewHolderDate viewHolderDate = (ViewHolderDate) holder;
-				viewHolderDate.textViewChatDate.setText( modelChat.time );
+				viewHolderDate.textViewChatDate.setText( messageModel.getMessageDate() );
 				break;
+
+			/*case ROW_TYPE_FILE :
+				final ViewHolderDoc viewHolderDoc = (ViewHolderDoc) holder;
+				viewHolderDoc.textViewUserTimeChatVideo.setText( messageModel.getMessageTime());
+				viewHolderDoc.buttonApprove.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View view) {
+
+					}
+				});
+				break;*/
 		}
 	}
 
@@ -205,7 +201,7 @@ public class ChatAdapter extends RecyclerView.Adapter< ChatAdapter.ViewHolderPar
 
 	@Override
 	public int getItemViewType( int position ) {
-		return listData.get( position ).rowType;
+		return listData.get( position ).getMessageType();
 	}
 
 	public class ViewHolderParent extends RecyclerView.ViewHolder {

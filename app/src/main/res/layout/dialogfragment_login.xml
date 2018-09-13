@@ -38,7 +38,7 @@
             android:textColor="@android:color/white"
             android:imeOptions="actionNext"
             android:hint="@string/hint_email"
-            android:text="siba@siba.com"
+            android:text="student@student.com"
             android:layout_height="wrap_content" />
 
     </android.support.design.widget.TextInputLayout>

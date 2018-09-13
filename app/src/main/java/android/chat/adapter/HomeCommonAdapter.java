@@ -2,9 +2,10 @@ package android.chat.adapter;
 
 import android.chat.R;
 import android.chat.listeners.StudentTeacherOrSubjectListener;
-import android.chat.model.UserOrGroupDetails;
+import android.chat.room.entity.UserOrGroupDetails;
 import android.chat.util.Constants;
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
@@ -50,7 +51,7 @@ public class HomeCommonAdapter extends RecyclerView.Adapter<HomeCommonAdapter.Vi
                     .inflate(R.layout.itemview_student, parent, false);
 
             return new ViewHolderStudent(v);
-        } else if (viewType == Constants.TAB_CHAT) {
+        } else if (viewType == Constants.TAB_GROUP) {
             v = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.itemview_student, parent, false);
 
@@ -90,12 +91,16 @@ public class HomeCommonAdapter extends RecyclerView.Adapter<HomeCommonAdapter.Vi
                 }
                 break;
 
-            case Constants.TAB_CHAT:
+            case Constants.TAB_GROUP:
                 final ViewHolderTeacher viewHolderTeacher = (ViewHolderTeacher) holder;
                 if(listStudentOrTeacher!=null && listStudentOrTeacher.size()>0) {
                     final UserOrGroupDetails userOrGroupDetails = listStudentOrTeacher.get(position);
 
                     viewHolderTeacher.textViewName.setText(userOrGroupDetails.getName());
+
+                    viewHolderTeacher.imageViewProfile.setImageDrawable(ContextCompat.getDrawable(
+                            context,R.drawable.ic_people_grey
+                    ));
 
                     viewHolderTeacher.itemView.setOnClickListener(new View.OnClickListener() {
                         @Override

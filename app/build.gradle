@@ -44,6 +44,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-storage:16.0.2'
     implementation 'com.google.firebase:firebase-auth:16.0.3'
     implementation 'com.google.firebase:firebase-storage:16.0.2'
+    //16.0.2
     implementation 'com.google.android.gms:play-services-auth:16.0.0'
 
     // object mapper
@@ -70,7 +71,7 @@ dependencies {
 
     // optional - RxJava support for Room
     implementation "android.arch.persistence.room:rxjava2:$room_version"
-
+    kapt "android.arch.persistence.room:compiler:1.1.1"
     // optional - Guava support for Room, including Optional and ListenableFuture
     implementation "android.arch.persistence.room:guava:$room_version"
 

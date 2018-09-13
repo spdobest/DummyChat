@@ -5,10 +5,11 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.chat.R;
 import android.chat.adapter.GroupChatAdapter;
+import android.chat.application.ChatApplication;
 import android.chat.data.PreferenceManager;
-import android.chat.model.chat.ModelChat;
-import android.chat.room.ChatDataHolder;
-import android.chat.room.entity.ChatDto;
+import android.chat.listeners.OnActionListener;
+import android.chat.room.AppDatabase;
+import android.chat.room.entity.MessageModel;
 import android.chat.ui.base.BaseActivity;
 import android.chat.util.CommonUtils;
 import android.chat.util.Constants;
@@ -34,19 +35,21 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
@@ -58,7 +61,7 @@ import hani.momanii.supernova_emoji_library.Actions.EmojIconActions;
 import hani.momanii.supernova_emoji_library.Helper.EmojiconEditText;
 
 public class SubjectChatActivity extends BaseActivity implements ChildEventListener, View.OnClickListener,
-        CommonUtils.SnackbarCallback {
+        CommonUtils.SnackbarCallback, OnActionListener {
 
 
     private static final String TAG = "SubjectChatActivity";
@@ -69,13 +72,19 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
     private static final int PERMISSION_READ_WRITE_EXTERNAL_STORAGE = 2;
     private final Activity current = this;
     EmojIconActions emojIcon;
-    List<ChatDto> listModelChat = new ArrayList<>();
+    List<MessageModel> listModelChat = new ArrayList<>();
     String time = "12:34 PM";
     String image = "";
     String video = "";
     String file = "";
     String message;
     BottomSheetDialog bottomSheetDialog;
+    StorageReference uploadFileReference;
+    /**
+     * DATABASE
+     */
+
+    AppDatabase appDatabase;
     private RecyclerView recyclerViewChat;
     private AppCompatImageView imageViewEmoji;
     private AppCompatImageView imageViewSend;
@@ -86,6 +95,7 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
     private AppCompatTextView textViewToolbarTitle;
     private ConstraintLayout rootLayoutChat;
     private View root;
+    private ProgressBar progressLoading;
     /**
      * FILE UPLOAD
      */
@@ -99,14 +109,11 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
     private FirebaseDatabase firebaseDatabase;
     private FirebaseStorage mFirebaseStorage;
     private StorageReference mStorageReferenceImages;
-
     // other class declaration
     private GroupChatAdapter groupChatAdapter;
     private LinearLayoutManager linearLayoutManager;
-
     private ProgressDialog mProgressDialog;
     private Uri mUri;
-
     // variables
     private String senderName;
     private String senderId;
@@ -114,11 +121,27 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
     private String recieverName;
     private String groupName;
 
+    private String pdfFilePath = "";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat1);
+
+        initializeView();
+
+        appDatabase = AppDatabase.getAppDatabase(this);
+        mStorageReference = FirebaseStorage.getInstance().getReference();
+        mDatabaseReference = FirebaseDatabase.getInstance().getReference(Constants.FirebaseConstants.DATABASE_PATH_UPLOADS);
+        firebaseAuth = FirebaseAuth.getInstance();
+
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        databaseReference = firebaseDatabase.getReference(Constants.FirebaseConstants.TABLE_ANDROID);
+        databaseChatReference = FirebaseDatabase.getInstance().getReference();
+
+        // Create an instance of Firebase Storage
+        mFirebaseStorage = FirebaseStorage.getInstance();
+        mStorageReferenceImages = mFirebaseStorage.getReferenceFromUrl(Constants.FirebaseConstants.FIREBASE_IMAGESTORAGE);
 
 
         Intent intent = getIntent();
@@ -136,41 +159,20 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
             }
         }
 
-        mStorageReference = FirebaseStorage.getInstance().getReference();
-        mDatabaseReference = FirebaseDatabase.getInstance().getReference(Constants.FirebaseConstants.DATABASE_PATH_UPLOADS);
 
         senderName = PreferenceManager.getInstance(this).getUserName();
         senderId = PreferenceManager.getInstance(this).getUserId();
 
 
-        // Create an instance of Firebase Storage
-        mFirebaseStorage = FirebaseStorage.getInstance();
-        mStorageReferenceImages = mFirebaseStorage.getReferenceFromUrl(Constants.FirebaseConstants.FIREBASE_IMAGESTORAGE);
-
-//		mStorageReferenceImages = mStorageReference.child("images");
-//		FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-
-        Log.i(TAG, "onCreate: recieverName" + recieverName + "  sender Id" + senderId + " Groupname " + groupName);
-        //Get Firebase auth instance
-        firebaseAuth = FirebaseAuth.getInstance();
-
-        firebaseDatabase = FirebaseDatabase.getInstance();
-        databaseReference = firebaseDatabase.getReference(Constants.FirebaseConstants.TABLE_ANDROID);
-        databaseChatReference = FirebaseDatabase.getInstance().getReference();
-
-        //	sendNewChat(userId,strName,"Welcome to sp chat",image,video,file,time,chatType,true);
-
-        initializeView();
-
         linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         linearLayoutManager.setStackFromEnd(true);
         recyclerViewChat.setLayoutManager(linearLayoutManager);
 
-        if (PreferenceManager.getInstance(this).getIsChatExist()) {
-            groupChatAdapter = new GroupChatAdapter(this, listModelChat, senderId);
-            recyclerViewChat.setAdapter(groupChatAdapter);
-        }
+        groupChatAdapter = new GroupChatAdapter(SubjectChatActivity.this, listModelChat, senderId, this);
+        recyclerViewChat.setAdapter(groupChatAdapter);
 
+
+        getAllGroupData(groupName);
 
         if (CommonUtils.isInternetAvailable(this)) {
             getChatData();
@@ -186,8 +188,8 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
                 Log.i(TAG, "onDataChange: ");
                 for (DataSnapshot innerDataSanpShot : dataSnapshot.getChildren()) {
                     //DataSnapshot of inner Childerns
-                    ChatDto modelChat = innerDataSanpShot.getValue(ChatDto.class);
-                    Log.i(TAG, "onDataChange: 1 " + modelChat.senderName + " \n " + modelChat.message);
+                    MessageModel modelChat = innerDataSanpShot.getValue(MessageModel.class);
+                    Log.i(TAG, "onDataChange: 1 " + modelChat.getSenderName() + " \n " + modelChat.getMessage());
                     if (!PreferenceManager.getInstance(SubjectChatActivity.this).getIsChatExist()) {
                         listModelChat.add(modelChat);
                         // databaseHelper.insertChat( SubjectChatActivity.this, modelChat, PreferenceManager.getInstance( SubjectChatActivity.this ).getIsChatExist() );
@@ -221,6 +223,7 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
         textViewToolbarTitle = findViewById(R.id.textViewToolbarTitle);
         rootLayoutChat = findViewById(R.id.rootLayoutChat);
         root = findViewById(R.id.root);
+        progressLoading = findViewById(R.id.progressLoading);
 
 
         emojIcon = new EmojIconActions(this, root, emojiEditText, imageViewEmoji);
@@ -301,7 +304,7 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
                 } else if (TextUtils.isEmpty(message)) {
                     Toast.makeText(SubjectChatActivity.this, "Message Cannot be Empty", Toast.LENGTH_SHORT).show();
                 } else {
-                    setupChatData(message);
+                    sendNewChat(message, GroupChatAdapter.ROW_TYPE_TEXT);
                 }
 
                 break;
@@ -342,45 +345,6 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
             return true;
         }
         return recyclerViewChat.getChildAt(0).getTop() == 0;
-    }
-
-    private void getChatData() {
-//		listModelChat.clear();
-        //	databaseChatReference = FirebaseDatabase.getInstance().getReference().child( Constants.FirebaseConstants.TABLE_CHAT );
-        databaseReference.addListenerForSingleValueEvent(
-                new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        Log.i(TAG, "onDataChange: ");
-                        if (dataSnapshot != null) {
-
-                            for (DataSnapshot innerDataSanpShot : dataSnapshot.getChildren()) {
-                                //DataSnapshot of inner Childerns
-                                ChatDto modelChat = innerDataSanpShot.getValue(ChatDto.class);
-                                Log.i(TAG, "onDataChange: 1 " + modelChat.senderName+ " \n " + modelChat.message);
-                                listModelChat.add(modelChat);
-                            }
-
-
-                            Iterable<DataSnapshot> dataSnapshotIterable = dataSnapshot.getChildren();
-                            Iterator<DataSnapshot> iterator = dataSnapshotIterable.iterator();
-
-                            while (iterator.hasNext()) {
-                                Log.i(TAG, "onDataChange: 2 ");
-                                ChatDto modelChat = iterator.next().getValue(ChatDto.class);
-                                listModelChat.add(modelChat);
-                            }
-                            groupChatAdapter.notifyDataSetChanged();
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        //handle databaseError
-                    }
-                });
-        groupChatAdapter = new GroupChatAdapter(this, listModelChat, senderId);
-        recyclerViewChat.setAdapter(groupChatAdapter);
     }
 
     public void showSubjectBottomsheet() {
@@ -491,20 +455,28 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
     }
 
     private void uploadFile(Uri data) {
-        StorageReference sRef = mStorageReference.child(Constants.FirebaseConstants.STORAGE_PATH_UPLOADS + System.currentTimeMillis() + ".pdf");
-        sRef.putFile(data)
+
+       /* showProgress(true);
+
+        uploadFileReference = mStorageReference.child(Constants.FirebaseConstants.STORAGE_PATH_UPLOADS + System.currentTimeMillis() + ".pdf");
+        uploadFileReference.putFile(data)
                 .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
 
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
-                        //   progressDialog.dismiss();
-                        //    String url = taskSnapshot.getDownloadUrl().toString();
-                        //    if(courseDataAfterUpload!=null ) {
-                        //     courseDataAfterUpload.setSyllabusFilePath(url);
-                        //    FirebaseUtility.updateCourse(courseDataAfterUpload);
+                        uploadFileReference.getDownloadUrl();
 
-                        //    new TeacherDataManager(getActivity()).updateTeacherAddedCourse(courseDataAfterUpload);
+                        showProgress(false);
+                       Uri  fileUri = taskSnapshot.getUploadSessionUri();
+                       String url = fileUri.toString();
+                           progressDialog.dismiss();
+                            String url = taskSnapshot.getDownloadUrl().toString();
+                            if(courseDataAfterUpload!=null ) {
+                             courseDataAfterUpload.setSyllabusFilePath(url);
+                            FirebaseUtility.updateCourse(courseDataAfterUpload);
+
+                            new TeacherDataManager(getActivity()).updateTeacherAddedCourse(courseDataAfterUpload);
 
 
                         //  FirebaseUtility.updateTeacherProfileData(courseDataAfterUpload.getCourseName());
@@ -524,49 +496,189 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
                     public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
                         double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
                     }
-                });
+                });*/
+
+        uploadFileReference = mStorageReference.child(Constants.FirebaseConstants.STORAGE_PATH_UPLOADS + System.currentTimeMillis() + ".pdf");
+        UploadTask uploadTask = uploadFileReference.putFile(data);
+
+        showProgress(true);
+
+        Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+            @Override
+            public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                if (!task.isSuccessful()) {
+                    throw task.getException();
+                }
+
+                // Continue with the task to get the download URL
+                return uploadFileReference.getDownloadUrl();
+            }
+        }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+            @Override
+            public void onComplete(@NonNull Task<Uri> task) {
+                if (task.isSuccessful()) {
+
+
+                    pdfFilePath =   "https://firebasestorage.googleapis.com/v0/b/my-chat-f5ef1.appspot.com/o/uploads%2F1536827908804.pdf?alt=media&token=01dbf408-d476-4383-bcdc-28b47c60ddc8";
+
+                    showProgress(false);
+                    Uri downloadUri = task.getResult();
+                    sendNewChat("",GroupChatAdapter.ROW_TYPE_FILE);
+                    Log.i(TAG, "onComplete: "+downloadUri.getPath());
+                    pdfFilePath = downloadUri.toString();
+
+                } else {
+                    // Handle failures
+                    // ...
+                }
+            }
+        });
+
     }
 
 
-    private void setupChatData(String message) {
-        ChatDto chatDto = new ChatDto();
-        chatDto.setChatDate(CommonUtils.getCurrentDate());
-        chatDto.setMessageType(groupChatAdapter.ROW_TYPE_TEXT);
-        chatDto.setCurrentTimeInMillies("" + System.currentTimeMillis());
-        chatDto.setIsAccepted(0);
-        chatDto.setIsDownloaded(0);
-        chatDto.setIsSent(0);
-        chatDto.setPathOrUrl("");
-        chatDto.setMessage(message);
-        chatDto.setExtraData("");
-        chatDto.setIsTeacher(0);
-        chatDto.setSenderId(senderId);
-        chatDto.setSenderName(senderName);
-        chatDto.setRecieverId(recieverId);
-        chatDto.setRecieverName(recieverName);
-        chatDto.setSubject(groupName);
-        chatDto.setTime(CommonUtils.getCurrentDate());
+    private void sendNewChat(String message, int messageType) {
+        /**
+         * String chatKey,String currentUserId ,String senderName, String senderId,
+         String message, String messageTimeInMillis, String messageDate,
+         String messageTime, int messageType, String pathOrUrl, int isDownloaded,
+         int isSent, String groupName, int isTeacher,int isAccepted
+         */
 
-        listModelChat.add(chatDto);
-        groupChatAdapter.notifyDataSetChanged();
+        MessageModel MessageModel = new MessageModel(
+                "",senderId, senderName, senderId, message, "" + System.currentTimeMillis(),
+                CommonUtils.getCurrentDate(), CommonUtils.getCurrentTime(),
+                groupChatAdapter.ROW_TYPE_TEXT, pdfFilePath, 0, 0, groupName,
+                PreferenceManager.getInstance(this).getIsStudent() ? 0 : 1,
+                0
+        );
 
-        sendNewChat(chatDto);
-
-    }
-
-    private void sendNewChat(ChatDto chatDto) {
-        if (chatDto != null) {
+        if (MessageModel != null) {
             String key = databaseChatReference.getKey();
             String insertKey = databaseChatReference.push().getKey();
             // pushing user to 'users' node using the userId
 //		databaseChatReference.child(userId).setValue(modelChat);
 
-            chatDto.setChatKey(insertKey);
+            MessageModel.setChatKey(insertKey);
 
-            ChatDataHolder.getAppDatabase(this).chatDao().insertAll(chatDto);
+            try {
 
-            databaseChatReference.child(Constants.FirebaseConstants.TABLE_CHAT).child(insertKey).setValue(chatDto);
+                appDatabase = AppDatabase.getAppDatabase(this);
+                databaseChatReference.child(Constants.FirebaseConstants.TABLE_CHAT).child(insertKey).setValue(MessageModel);
+
+                appDatabase.getMessageDao().insertMessage(MessageModel);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.i(TAG, e.getMessage());
+            }
+        }
+
+        refreshChatList(MessageModel);
+
+    }
+
+
+    private void refreshChatList(List<MessageModel> listMessage) {
+        if (listMessage != null && listMessage.size() > 0) {
+            int size = listModelChat.size();
+            listModelChat.addAll(listMessage);
+            groupChatAdapter.notifyItemRangeChanged(size, listModelChat.size());
 
         }
+    }
+
+    private void refreshChatList(MessageModel messageModel) {
+        if (messageModel != null) {
+            int size = listModelChat.size();
+            listModelChat.add(messageModel);
+            groupChatAdapter.notifyItemRangeChanged(size, listModelChat.size());
+        }
+    }
+
+    private void getAllGroupData(String subjectName) {
+        List<MessageModel> list = appDatabase.getMessageDao().getChatdataBySubject1(subjectName);
+        List<MessageModel> list1 = appDatabase.getMessageDao().getAllChat();
+
+        if (list != null && list.size() > 0) {
+            listModelChat.addAll(list);
+            refreshChatList(list);
+        }
+
+    }
+
+    private void showProgress(boolean isShow) {
+        if (isShow) {
+            progressLoading.setVisibility(View.VISIBLE);
+            imageViewSend.setClickable(false);
+        } else {
+            progressLoading.setVisibility(View.GONE);
+            imageViewSend.setClickable(true);
+        }
+    }
+
+    private void getChatData() {
+
+        Query chatDetailsQuery = ChatApplication.getFirebaseDatabaseReference().
+                child(Constants.FirebaseConstants.TABLE_CHAT).orderByChild("groupName").equalTo(groupName);
+
+        chatDetailsQuery.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.i(TAG, "onDataChange: ");
+                if (dataSnapshot != null) {
+
+                    Iterable<DataSnapshot> dataSnapshotIterable = dataSnapshot.getChildren();
+                    Iterator<DataSnapshot> iterator = dataSnapshotIterable.iterator();
+
+                    while (iterator.hasNext()) {
+                        Log.i(TAG, "onDataChange: 2 ");
+                        MessageModel messageModel = iterator.next().getValue(MessageModel.class);
+                        listModelChat.add(messageModel);
+                    }
+                    groupChatAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Getting Post failed, log a message
+                Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
+                showSnackbar("Error Fetching Data ", Snackbar.LENGTH_LONG);
+            }
+        });
+    }
+
+    @Override
+    public void onApproveClick(MessageModel messageModel) {
+        if (!PreferenceManager.getInstance(this).getIsStudent()) {
+            if (messageModel != null) {
+                String chatKey = messageModel.getChatKey();
+                messageModel.setIsAccepted(1);
+                ChatApplication.getFirebaseDatabaseReference().child(Constants.FirebaseConstants.TABLE_CHAT).child(chatKey)
+                        .setValue(messageModel)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    Log.i(TAG, "onComplete: success ");
+                                    showSnackbar("Updated Successfully", Snackbar.LENGTH_SHORT);
+                                } else {
+                                    Log.i(TAG, "onComplete: fail");
+                                    showSnackbar("Updated Successfully", Snackbar.LENGTH_LONG);
+                                }
+                            }
+                        });
+            }
+        }
+    }
+
+    @Override
+    public void onDownloadClick(MessageModel messageModel) {
+        if(messageModel!=null){
+            Uri uri = Uri.parse(messageModel.getPathOrUrl());
+        }
+
+
     }
 }
