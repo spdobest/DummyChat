@@ -32,6 +32,18 @@
         <activity android:name=".ui.activity.SubjectChatActivity"
             android:theme="@style/AppThemeHome"
             />
+
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="android.chat.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths"/>
+        </provider>
+
     </application>
 
 </manifest>

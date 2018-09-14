@@ -8,6 +8,7 @@ import android.chat.adapter.GroupChatAdapter;
 import android.chat.application.ChatApplication;
 import android.chat.data.PreferenceManager;
 import android.chat.listeners.OnActionListener;
+import android.chat.model.Subject;
 import android.chat.room.AppDatabase;
 import android.chat.room.entity.MessageModel;
 import android.chat.ui.base.BaseActivity;
@@ -19,6 +20,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -26,6 +28,7 @@ import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
@@ -40,6 +43,8 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -53,7 +58,13 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -458,7 +469,8 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
     }
 
     private void uploadFile(Uri data) {
-        uploadFileReference = mStorageReference.child(Constants.FirebaseConstants.STORAGE_PATH_UPLOADS + System.currentTimeMillis() + ".pdf");
+        pdfFilePath = System.currentTimeMillis()+".pdf";
+        uploadFileReference = mStorageReference.child(Constants.FirebaseConstants.STORAGE_PATH_UPLOADS + pdfFilePath);
         UploadTask uploadTask = uploadFileReference.putFile(data);
 
         showProgress(true);
@@ -479,11 +491,11 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
                 if (task.isSuccessful()) {
 
 
-                    pdfFilePath =   "https://firebasestorage.googleapis.com/v0/b/my-chat-f5ef1.appspot.com/o/uploads%2F1536827908804.pdf?alt=media&token=01dbf408-d476-4383-bcdc-28b47c60ddc8";
+                   // pdfFilePath =   "https://firebasestorage.googleapis.com/v0/b/my-chat-f5ef1.appspot.com/o/uploads%2F1536827908804.pdf?alt=media&token=01dbf408-d476-4383-bcdc-28b47c60ddc8";
 
                     showProgress(false);
                     Uri downloadUri = task.getResult();
-                    pdfFilePath = downloadUri.toString();
+                  //  pdfFilePath = downloadUri.toString();
                     sendNewChat("",GroupChatAdapter.ROW_TYPE_FILE);
                     Log.i(TAG, "onComplete: "+downloadUri.getPath());
 
@@ -638,9 +650,63 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
     }
 
     @Override
-    public void onDownloadClick(MessageModel messageModel) {
+    public void onDownloadClick(final MessageModel messageModel) {
+
+
+
+
         if(messageModel!=null){
             Uri uri = Uri.parse(messageModel.getPathOrUrl());
         }
+
+
+        StorageReference islandRef = mStorageReferenceImages.child("upoads/"+messageModel.getPathOrUrl());
+
+        final long TEN_MEGABYTE = 10*1024 * 1024;
+        islandRef.getBytes(TEN_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+            @Override
+            public void onSuccess(byte[] bytes) {
+                // Data for "images/island.jpg" is returns, use this as needed
+
+
+                try {
+                    if (bytes != null && bytes.length > 0) {
+                        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(createImageFile(messageModel.getPathOrUrl())));
+                        bos.write(bytes);
+                        bos.flush();
+                        bos.close();
+                    }
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle any errors
+            }
+        });
+    }
+
+    private File createImageFile(final String pdfFileName)  {
+
+
+        File pdfFilePath = null;
+
+        try {
+            // Create an image file name
+            File storageDir = new File(Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOCUMENTS),"Pdf");
+            pdfFilePath = File.createTempFile(
+                    pdfFileName,  /* prefix */
+                    ".pdf",         /* suffix */
+                    storageDir      /* directory */
+            );
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
+        return pdfFilePath;
     }
 }
