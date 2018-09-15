@@ -50,4 +50,11 @@ public interface MessageDao {
     @Query("SELECT * FROM messageTable WHERE groupName = :subject")
     public abstract List<MessageModel> getChatdataBySubject1(String subject);
 
+    /**
+     * DELETE FROM tableName where id NOT IN (SELECT id from tableName ORDER BY id DESC LIMIT 20)
+     */
+
+    @Query("SELECT messageDate from messageTable ORDER BY id DESC LIMIT 1")
+    String  getLastMessageDate();
+
 }

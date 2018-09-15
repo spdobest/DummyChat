@@ -303,11 +303,15 @@ public class ChatActivity extends BaseActivity implements ChildEventListener, Vi
 					//DataSnapshot of inner Childerns
 					MessageModel modelChat = innerDataSanpShot.getValue( MessageModel.class );
 					Log.i( TAG, "onDataChange: 1 " + modelChat.getSenderName() + " \n " + modelChat.message );
-					if ( !PreferenceManager.getInstance( ChatActivity.this ).getIsChatExist() ) {
-						listMessageModel.add( modelChat );
-					//	databaseHelper.insertChat( ChatActivity.this, modelChat, PreferenceManager.getInstance( ChatActivity.this ).getIsChatExist() );
+
+
+					long insertRes = appDatabase.getMessageDao().insertMessage(modelChat);
+					if(insertRes>0){
+						listMessageModel.add(modelChat);
 					}
+
 				}
+
 				chatAdapter.notifyDataSetChanged();
 				recyclerViewChat.smoothScrollToPosition( chatAdapter.getItemCount() );
 			}
@@ -411,7 +415,7 @@ public class ChatActivity extends BaseActivity implements ChildEventListener, Vi
 				}
 				else {
 
-							sendNewChat(message,ChatAdapter.ROW_TYPE_TEXT);
+                    sendChatDataToFirebase(message,ChatAdapter.ROW_TYPE_TEXT);
 
 					}
 					chatAdapter.notifyDataSetChanged();
@@ -633,7 +637,7 @@ public class ChatActivity extends BaseActivity implements ChildEventListener, Vi
 
 	}
 
-	private void sendNewChat(String message,int messageType) {
+	private void sendChatDataToFirebase(String message,int messageType) {
 		/**
 		 * String chatKey, String senderName, String senderId,
 		 String message, String messageTimeInMillis, String messageDate,
@@ -663,12 +667,10 @@ public class ChatActivity extends BaseActivity implements ChildEventListener, Vi
 			}
 		}
 		else {
-			CommonUtils.showSnackBar( rootLayoutChat, "No Internet Connection", Snackbar.LENGTH_SHORT );
-			appDatabase.getMessageDao().insertMessage(messageModel);
+			insertChatToDB(messageModel);
 		}
 
 		refreshChatList(messageModel);
-
 	}
 
 
@@ -828,9 +830,24 @@ public class ChatActivity extends BaseActivity implements ChildEventListener, Vi
 				}
 			}
 		});
-
 	}
 
 
+	private void insertChatToDB(MessageModel messageModel){
 
+	    String lastMessageDate = appDatabase.getMessageDao().getLastMessageDate();
+
+
+	    if(CommonUtils.getCurrentDate().equalsIgnoreCase(lastMessageDate)){
+            appDatabase.getMessageDao().insertMessage(messageModel);
+        }
+        else{
+            MessageModel messageModel1 = new MessageModel();
+            messageModel1.setMessageDate(CommonUtils.getCurrentDate());
+            messageModel1.setMessageTime(CommonUtils.getCurrentDate());
+            messageModel1.setMessageTimeInMillis(""+System.currentTimeMillis());
+            messageModel1.setMessageType(GroupChatAdapter.ROW_TYPE_DATE);
+            appDatabase.getMessageDao().insertMessage(messageModel1);
+        }
+    }
 }
