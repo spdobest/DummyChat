@@ -5,6 +5,7 @@ import android.chat.data.PreferenceManager;
 import android.chat.listeners.OnActionListener;
 import android.chat.room.entity.MessageModel;
 import android.content.Context;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatImageView;
@@ -136,6 +137,7 @@ public class GroupChatAdapter extends RecyclerView.Adapter< GroupChatAdapter.Vie
                 Log.i( TAG, "onBindViewHolder: "+userId.equalsIgnoreCase( modelChat.getSenderId() ) );
 
                 if ( userId.equalsIgnoreCase(modelChat.getCurrentUserId()) ) {
+                    viewHolderText.textViewUserNameChatText.setVisibility(View.GONE);
                     viewHolderText.linearLayoutChatBubble.setBackground(ContextCompat.getDrawable(viewHolderText.relativeLayoutRootChatText.getContext(),
                             R.drawable.drawable_chatbuble_send));
                     viewHolderText.relativeLayoutRootChatText.setGravity( Gravity.RIGHT );
@@ -143,6 +145,8 @@ public class GroupChatAdapter extends RecyclerView.Adapter< GroupChatAdapter.Vie
                     viewHolderText.imageViewLeftArrowTextChat.setVisibility( View.GONE );
                 }
                 else {
+                    viewHolderText.textViewUserNameChatText.setVisibility(View.VISIBLE);
+                    viewHolderText.textViewUserNameChatText.setText(modelChat.getSenderName());
                     viewHolderText.relativeLayoutRootChatText.setGravity( Gravity.LEFT );
                     viewHolderText.imageViewLeftArrowTextChat.setVisibility( View.GONE);
                     viewHolderText.imageViewRightArrowTextChat.setVisibility( View.GONE );
@@ -284,7 +288,7 @@ public class GroupChatAdapter extends RecyclerView.Adapter< GroupChatAdapter.Vie
 
     public class ViewHolderText extends ViewHolderParent {
         private RelativeLayout     relativeLayoutRootChatText;
-        private LinearLayout     linearLayoutChatBubble;
+        private ConstraintLayout linearLayoutChatBubble;
         private AppCompatImageView imageViewLeftArrowTextChat;
         private AppCompatImageView imageViewRightArrowTextChat;
         private AppCompatTextView  textViewUserNameChatText;
@@ -294,12 +298,12 @@ public class GroupChatAdapter extends RecyclerView.Adapter< GroupChatAdapter.Vie
         public ViewHolderText( View itemView ) {
             super( itemView );
             relativeLayoutRootChatText = ( RelativeLayout ) itemView.findViewById( R.id.relativeLayoutRootChatText );
-            linearLayoutChatBubble = ( LinearLayout ) itemView.findViewById( R.id.linearLayoutChatBubble );
-            imageViewLeftArrowTextChat = ( AppCompatImageView ) itemView.findViewById( R.id.imageViewLeftArrowTextChat );
-            imageViewRightArrowTextChat = ( AppCompatImageView ) itemView.findViewById( R.id.imageViewRightArrowTextChat );
-            textViewUserNameChatText = ( AppCompatTextView ) itemView.findViewById( R.id.textViewUserNameChatText );
-            textViewUserMessageChatText = ( EmojiconTextView ) itemView.findViewById( R.id.textViewUserMessageChatText );
-            textViewUserTimeChatText = ( AppCompatTextView ) itemView.findViewById( R.id.textViewUserTimeChatText );
+            linearLayoutChatBubble = itemView.findViewById( R.id.linearLayoutChatBubble );
+            imageViewLeftArrowTextChat =   itemView.findViewById( R.id.imageViewLeftArrowTextChat );
+            imageViewRightArrowTextChat =   itemView.findViewById( R.id.imageViewRightArrowTextChat );
+            textViewUserNameChatText =   itemView.findViewById( R.id.textViewUserNameChatText );
+            textViewUserMessageChatText =  itemView.findViewById( R.id.textViewUserMessageChatText );
+            textViewUserTimeChatText =  itemView.findViewById( R.id.textViewUserTimeChatText );
         }
     }
 

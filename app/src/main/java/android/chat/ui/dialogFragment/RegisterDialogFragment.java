@@ -211,6 +211,7 @@ public class RegisterDialogFragment extends BaseLoginRegisterDialogFragment impl
                 mDatabase.child(Constants.FirebaseConstants.TABLE_USER).child(userId).setValue(userOrGroupDetails);
             }
             getActivity().startActivity(new Intent(getActivity(), HomeActivity.class));
+            PreferenceManager.getInstance(getActivity()).setUserName(name);
         }
         else{
             showError("Error");

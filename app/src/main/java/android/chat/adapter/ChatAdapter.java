@@ -2,10 +2,13 @@ package android.chat.adapter;
 
 import android.chat.R;
 import android.chat.data.PreferenceManager;
+import android.chat.listeners.OnActionListener;
 import android.chat.room.entity.MessageModel;
+import android.chat.util.ChatMessageDiffCallback;
 import android.content.Context;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.AppCompatButton;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
@@ -44,17 +47,20 @@ public class ChatAdapter extends RecyclerView.Adapter< ChatAdapter.ViewHolderPar
 
 	LayoutInflater layoutInflater;
 	private Context           context;
-	private List<MessageModel> listData;
+	private List<MessageModel> messageList;
 	private String            userId;
 	private String            userName;
+	private OnActionListener onActionListener;
 
-	public ChatAdapter(Context context, List<MessageModel> listData, String userId ) {
+	public ChatAdapter(Context context, List<MessageModel> messageList, String userId,
+					   OnActionListener onActionListener) {
 		this.context = context;
-		this.listData = listData;
+		this.messageList = messageList;
 		layoutInflater = LayoutInflater.from( context );
 		this.userId = userId;
+		this.onActionListener = onActionListener;
 		userName = PreferenceManager.getInstance( context ).getUserName();
-		Log.i( TAG, "ChatAdapter: user id " + userId + " size " + listData.size() );
+		Log.i( TAG, "ChatAdapter: user id " + userId + " size " + messageList.size() );
 	}
 
 	@Override
@@ -100,7 +106,7 @@ public class ChatAdapter extends RecyclerView.Adapter< ChatAdapter.ViewHolderPar
 
 	@Override
 	public void onBindViewHolder( ViewHolderParent holder, int position ) {
-		final MessageModel messageModel = listData.get( position );
+		final MessageModel messageModel = messageList.get( position );
 		switch ( holder.getItemViewType() ) {
 			case ROW_TYPE_TEXT:
 				final ViewHolderText viewHolderText = ( ViewHolderText ) holder;
@@ -111,19 +117,56 @@ public class ChatAdapter extends RecyclerView.Adapter< ChatAdapter.ViewHolderPar
 				Log.i( TAG, "onBindViewHolder: "+userId.equalsIgnoreCase( messageModel.getSenderId() ) );
 
 				if ( messageModel.getCurrentUserId().equalsIgnoreCase(userId) ) {
+					//viewHolderText.textViewUserNameChatText.setVisibility(View.GONE);
 					viewHolderText.linearLayoutChatBubble.setBackground(ContextCompat.getDrawable(viewHolderText.relativeLayoutRootChatText.getContext(),
 							R.drawable.drawable_chatbuble_send));
 					viewHolderText.relativeLayoutRootChatText.setGravity( Gravity.RIGHT );
 					viewHolderText.imageViewRightArrowTextChat.setVisibility( View.GONE );
 					viewHolderText.imageViewLeftArrowTextChat.setVisibility( View.GONE );
+					viewHolderText.textViewUserMessageChatText.setGravity(Gravity.LEFT);
 				}
 				else {
 					viewHolderText.relativeLayoutRootChatText.setGravity( Gravity.LEFT );
 					viewHolderText.imageViewLeftArrowTextChat.setVisibility( View.GONE);
 					viewHolderText.imageViewRightArrowTextChat.setVisibility( View.GONE );
+					viewHolderText.textViewUserMessageChatText.setGravity(Gravity.LEFT);
 					viewHolderText.linearLayoutChatBubble.setBackground(ContextCompat.getDrawable(viewHolderText.relativeLayoutRootChatText.getContext(),
 							R.drawable.drawable_chatbuble_recieve));
 				}
+
+				/*if(messageModel.isSelected){
+					viewHolderText.linearLayoutChatBubble.setBackgroundColor(ContextCompat.getColor(
+							context,R.color.color_dark_grey
+					));
+				}
+				else{
+					viewHolderText.linearLayoutChatBubble.setBackgroundColor(ContextCompat.getColor(
+							context,R.color.white
+					));
+				}*/
+
+
+				viewHolderText.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+					@Override
+					public boolean onLongClick(View view) {
+						if(messageModel.isSelected){
+							messageModel.isSelected = false;
+							viewHolderText.linearLayoutChatBubble.setBackgroundColor(ContextCompat.getColor(
+									context, R.color.white
+							));
+							onActionListener.onLongPressSelect(messageModel);
+						}
+						else {
+							messageModel.isSelected = true;
+							viewHolderText.linearLayoutChatBubble.setBackgroundColor(ContextCompat.getColor(
+									context, R.color.color_dark_grey
+							));
+							onActionListener.onLongPressSelect(messageModel);
+						}
+						return false;
+					}
+				});
+
 
 				break;
 
@@ -196,12 +239,12 @@ public class ChatAdapter extends RecyclerView.Adapter< ChatAdapter.ViewHolderPar
 
 	@Override
 	public int getItemCount() {
-		return listData.size();
+		return messageList.size();
 	}
 
 	@Override
 	public int getItemViewType( int position ) {
-		return listData.get( position ).getMessageType();
+		return messageList.get( position ).getMessageType();
 	}
 
 	public class ViewHolderParent extends RecyclerView.ViewHolder {
@@ -212,7 +255,7 @@ public class ChatAdapter extends RecyclerView.Adapter< ChatAdapter.ViewHolderPar
 
 	public class ViewHolderText extends ViewHolderParent {
 		private RelativeLayout     relativeLayoutRootChatText;
-		private LinearLayout     linearLayoutChatBubble;
+		private ConstraintLayout linearLayoutChatBubble;
 		private AppCompatImageView imageViewLeftArrowTextChat;
 		private AppCompatImageView imageViewRightArrowTextChat;
 		private AppCompatTextView  textViewUserNameChatText;
@@ -221,13 +264,13 @@ public class ChatAdapter extends RecyclerView.Adapter< ChatAdapter.ViewHolderPar
 
 		public ViewHolderText( View itemView ) {
 			super( itemView );
-			relativeLayoutRootChatText = ( RelativeLayout ) itemView.findViewById( R.id.relativeLayoutRootChatText );
-			linearLayoutChatBubble = ( LinearLayout ) itemView.findViewById( R.id.linearLayoutChatBubble );
-			imageViewLeftArrowTextChat = ( AppCompatImageView ) itemView.findViewById( R.id.imageViewLeftArrowTextChat );
-			imageViewRightArrowTextChat = ( AppCompatImageView ) itemView.findViewById( R.id.imageViewRightArrowTextChat );
-			textViewUserNameChatText = ( AppCompatTextView ) itemView.findViewById( R.id.textViewUserNameChatText );
-			textViewUserMessageChatText = ( EmojiconTextView ) itemView.findViewById( R.id.textViewUserMessageChatText );
-			textViewUserTimeChatText = ( AppCompatTextView ) itemView.findViewById( R.id.textViewUserTimeChatText );
+			relativeLayoutRootChatText =   itemView.findViewById( R.id.relativeLayoutRootChatText );
+			linearLayoutChatBubble =   itemView.findViewById( R.id.linearLayoutChatBubble );
+			imageViewLeftArrowTextChat = itemView.findViewById( R.id.imageViewLeftArrowTextChat );
+			imageViewRightArrowTextChat =   itemView.findViewById( R.id.imageViewRightArrowTextChat );
+			textViewUserNameChatText =   itemView.findViewById( R.id.textViewUserNameChatText );
+			textViewUserMessageChatText =  itemView.findViewById( R.id.textViewUserMessageChatText );
+			textViewUserTimeChatText =   itemView.findViewById( R.id.textViewUserTimeChatText );
 		}
 	}
 
@@ -313,4 +356,15 @@ public class ChatAdapter extends RecyclerView.Adapter< ChatAdapter.ViewHolderPar
 		 time = dateTime.substring( 11, dateTime.length() );
 		return time;
 	}
+
+
+	public void updateMessageList(List<MessageModel> employees) {
+		final ChatMessageDiffCallback diffCallback = new ChatMessageDiffCallback(this.messageList, employees);
+		final DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(diffCallback);
+
+		this.messageList.clear();
+		this.messageList.addAll(employees);
+		diffResult.dispatchUpdatesTo(this);
+	}
+	
 }

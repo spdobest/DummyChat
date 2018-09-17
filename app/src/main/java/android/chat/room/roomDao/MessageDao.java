@@ -38,7 +38,7 @@ public interface MessageDao {
     @Query("SELECT * FROM messageTable WHERE groupName LIKE :subject")
     public abstract List<MessageModel> getChatdataBySubject(String subject);
 
-    @Query("SELECT * FROM messageTable WHERE senderId LIKE :recieverId AND currentUserId LIKE :currentUserId")
+    @Query("SELECT * FROM messageTable WHERE senderId LIKE :recieverId AND currentUserId LIKE :currentUserId  ORDER BY id ASC")
     public abstract List<MessageModel> getChatdataByRecieverId(String recieverId,String currentUserId);
 
 
@@ -56,5 +56,12 @@ public interface MessageDao {
 
     @Query("SELECT messageDate from messageTable ORDER BY id DESC LIMIT 1")
     String  getLastMessageDate();
+
+    @Query("SELECT chatKey FROM messageTable WHERE chatKey = :chatKey LIMIT 1")
+    String getChatKey( String chatKey);
+
+    @Query("SELECT * FROM messageTable WHERE senderReciever = :senderReciverId OR senderReciever =:recieverSenderId  ORDER BY id ASC")
+    public abstract List<MessageModel> getMessageByOneId(String senderReciverId,String recieverSenderId);
+
 
 }

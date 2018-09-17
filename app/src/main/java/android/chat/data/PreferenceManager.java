@@ -74,6 +74,7 @@ public class PreferenceManager {
 
         String IS_STUDENT ="isStudent" ;
         String SUBJECT_LIST ="subjectList" ;
+        String NOTIFICATION_USERID ="notificationID" ;
     }
 
     private static PreferenceManager sInstance;
@@ -313,6 +314,13 @@ public class PreferenceManager {
     }
     public String getSubjectList() {
         return mPrefs.getString( Keys.SUBJECT_LIST, "");
+    }
+
+    public void setNotificationId(String notificationUserId) {
+        mEditor.putString( Keys.NOTIFICATION_USERID, notificationUserId).commit();
+    }
+    public String getNotificationId() {
+        return mPrefs.getString( Keys.NOTIFICATION_USERID, "");
     }
 
     public void setAppliedMax(int max) {

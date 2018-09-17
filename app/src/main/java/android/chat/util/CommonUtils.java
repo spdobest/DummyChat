@@ -244,10 +244,12 @@ public class CommonUtils {
     //SNACKBAR WITHOUT ACTION BUTTON
     public static void showSnackBar( final View rootlayout, String message,final int snackbarTime){
 
-        Snackbar snackbar = Snackbar
+
+
+       /* Snackbar snackbar = Snackbar
                 .make(rootlayout, message , snackbarTime);
 
-        snackbar.show();
+        snackbar.show();*/
     }
 
     public interface SnackbarCallback{

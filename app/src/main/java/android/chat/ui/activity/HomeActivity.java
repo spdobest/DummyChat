@@ -6,12 +6,18 @@ package android.chat.ui.activity;
 import android.chat.R;
 import android.chat.SpalshActivity;
 import android.chat.adapter.HomePagerAdapter;
+import android.chat.application.ChatApplication;
+import android.chat.background.FirebaseMessageReadJobService;
+import android.chat.background.MessageReadingService;
 import android.chat.data.PreferenceManager;
 import android.chat.ui.fragments.HomeTabFragment;
 import android.chat.util.ApplicationUtils;
 import android.chat.util.Constants;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -47,6 +53,8 @@ public class HomeActivity extends AppCompatActivity {
     private ViewPager viewPager;
     private TabLayout tabLayout;
 
+    private MessageReadingService m_service;
+
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
@@ -59,10 +67,11 @@ public class HomeActivity extends AppCompatActivity {
         setSupportActionBar( toolbar );
 
         final ActionBar ab = getSupportActionBar();
-//        ab.setHomeAsUpIndicator( R.drawable.ic_menu );
-//        ab.setDisplayHomeAsUpEnabled( true );
+
+        startService(new Intent(this, MessageReadingService.class));
 
 
+        new FirebaseMessageReadJobService().scheduleJobFirebaseToReadMessage(HomeActivity.this);
 
 
         if ( viewPager != null ) {
@@ -160,5 +169,15 @@ public class HomeActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected( item );
     }
+
+    private ServiceConnection m_serviceConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            m_service = ((MessageReadingService.MyBinder)service).getService();
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+            m_service = null;
+        }
+    };
 
 }

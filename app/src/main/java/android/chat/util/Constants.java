@@ -80,6 +80,8 @@ public class Constants {
 		String RECIEVER_NAME = "recieverName";
 		String RECIEVER_ID = "recieverId";
 		String GROUP_NAME = "groupName";
+		String MESSAGE_FROM_NOTIFICATION = "messageFromNotification";
+		String SENDER_RECIEVER_ID = "senderRecieverId";
 	}
 
 	public interface OrderStatus {

@@ -103,6 +103,7 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
     private EmojiconEditText emojiEditText;
     private Toolbar toolbar;
     private AppCompatImageView imageViewToolbarBack;
+    private AppCompatImageView imageViewProfileIcon;
     private AppCompatTextView textViewToolbarTitle;
     private ConstraintLayout rootLayoutChat;
     private View root;
@@ -171,6 +172,8 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
         }
 
 
+        textViewToolbarTitle.setText(groupName);
+
         senderName = PreferenceManager.getInstance(this).getUserName();
         senderId = PreferenceManager.getInstance(this).getUserId();
 
@@ -229,10 +232,13 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
 
         toolbar = findViewById(R.id.toolbar);
         imageViewToolbarBack = findViewById(R.id.imageViewToolbarBack);
+        imageViewProfileIcon = findViewById(R.id.imageViewProfileIcon);
         textViewToolbarTitle = findViewById(R.id.textViewToolbarTitle);
         rootLayoutChat = findViewById(R.id.rootLayoutChat);
         root = findViewById(R.id.root);
         progressLoading = findViewById(R.id.progressLoading);
+
+        imageViewProfileIcon.setImageDrawable(ContextCompat.getDrawable(SubjectChatActivity.this,R.drawable.ic_people_grey));
 
 
         emojIcon = new EmojIconActions(this, root, emojiEditText, imageViewEmoji);
@@ -562,10 +568,11 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
 
     private void refreshChatList(MessageModel messageModel) {
         if (messageModel != null) {
-            int size = listModelChat.size();
-            listModelChat.add(messageModel);
-            groupChatAdapter.notifyDataSetChanged();
-            recyclerViewChat.scrollToPosition(listModelChat.size()-1);
+            int newMsgPosition = listModelChat.size() - 1;
+            // Notify recycler view insert one new data.
+            groupChatAdapter.notifyItemInserted(newMsgPosition);
+            // Scroll RecyclerView to the last message.
+            recyclerViewChat.scrollToPosition(newMsgPosition);
         }
     }
 
@@ -708,5 +715,9 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
             e.printStackTrace();
         }
         return pdfFilePath;
+    }
+    @Override
+    public void onLongPressSelect(MessageModel messageModel) {
+
     }
 }

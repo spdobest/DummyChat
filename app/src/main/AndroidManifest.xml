@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name=".application.ChatApplication"
@@ -22,17 +23,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.activity.ChatActivity"
-            android:theme="@style/AppThemeChat"/>
-
-        <activity android:name=".ui.activity.HomeActivity"
+        <activity
+            android:name=".ui.activity.ChatActivity"
+            android:theme="@style/AppThemeChat" />
+        <activity
+            android:name=".ui.activity.HomeActivity"
             android:theme="@style/AppThemeHome"
+            android:launchMode="singleTop"
             />
-
-        <activity android:name=".ui.activity.SubjectChatActivity"
-            android:theme="@style/AppThemeHome"
-            />
-
+        <activity
+            android:name=".ui.activity.SubjectChatActivity"
+            android:theme="@style/AppThemeHome" />
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -41,8 +42,16 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths"/>
+                android:resource="@xml/provider_paths" />
         </provider>
+
+        <service
+            android:name=".background.MessageReadingService"
+            android:exported="false"/>
+
+
+        <service android:name=".background.FirebaseMessageReadJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
     </application>
 

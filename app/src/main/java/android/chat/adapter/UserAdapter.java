@@ -56,11 +56,11 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ChatViewHolder
 		holder.relativeLayoutRootMainChatlist.setOnClickListener( new View.OnClickListener() {
 			@Override
 			public void onClick( View view ) {
-				Intent intentChat = new Intent( context, ChatActivity.class);
+				/*Intent intentChat = new Intent( context, ChatActivity.class);
 				intentChat.putExtra( Constants.BundleKeys.USER_NAME, user.getUserName() );
 				intentChat.putExtra( Constants.BundleKeys.USER_ID, user.getUserId() );
 				intentChat.putExtra( Constants.BundleKeys.EMAIL, user.getEmailId() );
-				context.startActivity( intentChat );
+				context.startActivity( intentChat );*/
 			}
 		} );
 
@@ -68,7 +68,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ChatViewHolder
 		holder.itemView.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-
 				Intent intentChat = new Intent(holder.itemView.getContext(),ChatActivity.class);
 				intentChat.putExtra( Constants.BundleKeys.USER_NAME, user.getUserName() );
 				intentChat.putExtra( Constants.BundleKeys.USER_ID, user.getUserId() );

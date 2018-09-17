@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout android:id="@+id/relativeLayoutRootChatText"
+<RelativeLayout xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/relativeLayoutRootChatText"
                 xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
@@ -7,9 +8,7 @@
                 android:layout_marginTop="@dimen/dimen_1dp"
                 android:padding="@dimen/dimen_3dp"
                 xmlns:emojicon="http://schemas.android.com/apk/res-auto"
-                android:layout_gravity="center_vertical"
-
-    >
+                android:layout_gravity="center_vertical">
 
     <android.support.v7.widget.AppCompatImageView
         android:id="@+id/imageViewLeftArrowTextChat"
@@ -25,56 +24,72 @@
         app:srcCompat="@drawable/ic_chat_left_arrow"
         />
 
-    <LinearLayout
+    <android.support.constraint.ConstraintLayout
         android:id="@+id/linearLayoutChatBubble"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@+id/imageViewLeftArrowTextChat"
-        android:layout_toLeftOf="@+id/imageViewRightArrowTextChat"
-        android:layout_toRightOf="@+id/imageViewLeftArrowTextChat"
-        android:layout_toStartOf="@+id/imageViewRightArrowTextChat"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
         android:background="@drawable/rounded_with_allside"
         android:orientation="vertical"
-        android:padding="@dimen/dimen_3dp"
-        >
+        android:padding="@dimen/dimen_4dp">
 
         <android.support.v7.widget.AppCompatTextView
             android:id="@+id/textViewUserNameChatText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxLines="1"
-            android:text="SPM"
+            android:text="UserName"
+            android:textSize="@dimen/dimen_12sp"
             android:textStyle="bold"
             android:visibility="gone"
-            android:textSize="@dimen/dimen_12sp"
-            />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <hani.momanii.supernova_emoji_library.Helper.EmojiconTextView
             android:id="@+id/textViewUserMessageChatText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/dimen_14sp"
-            android:text=""
             android:layout_alignParentBottom="true"
+            android:layout_marginStart="@dimen/dimen_1dp"
+            android:text="message"
             android:textColor="@color/black"
+            android:textSize="@dimen/dimen_14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textViewUserNameChatText"
             emojicon:emojiconSize="60sp"
-            emojicon:emojiconUseSystemDefault="true"
-            />
+            android:visibility="visible"
+            emojicon:emojiconUseSystemDefault="true" />
+
 
         <android.support.v7.widget.AppCompatTextView
             android:id="@+id/textViewUserTimeChatText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_marginEnd="@dimen/dimen_3dp"
+            android:gravity="right"
             android:maxLines="1"
-            android:text=""
+            android:text="3:30AM"
             android:textColor="@android:color/black"
             android:textSize="@dimen/dimen_8sp"
+            app:layout_constraintBottom_toBottomOf="@+id/imageViewTick"
+            app:layout_constraintEnd_toStartOf="@+id/imageViewTick" />
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/imageViewTick"
+            android:layout_width="@dimen/dimen_8dp"
+            android:layout_height="@dimen/dimen_8dp"
             android:layout_gravity="right"
-            android:gravity="right"
-            />
+            android:layout_marginEnd="@dimen/dimen_3dp"
+            android:layout_marginTop="@dimen/dimen_4dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textViewUserMessageChatText"
+            app:srcCompat="@drawable/ic_round_double_tick" />
 
-
-    </LinearLayout>
+    </android.support.constraint.ConstraintLayout>
 
     <android.support.v7.widget.AppCompatImageView
         android:id="@+id/imageViewRightArrowTextChat"

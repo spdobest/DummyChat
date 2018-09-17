@@ -38,7 +38,7 @@
             android:textColor="@android:color/white"
             android:imeOptions="actionNext"
             android:hint="@string/hint_email"
-            android:text="student@student.com"
+            android:text="student@gmail.com"
             android:layout_height="wrap_content" />
 
     </android.support.design.widget.TextInputLayout>
@@ -80,6 +80,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/student"
+            android:checked="true"
             android:textColor="@android:color/white"
             />
 

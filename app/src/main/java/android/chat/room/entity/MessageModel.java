@@ -5,9 +5,11 @@ import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 @Entity(tableName = "messageTable")
-public class MessageModel {
+public class MessageModel implements Parcelable{
 
     @PrimaryKey(autoGenerate = true)
     public int id;
@@ -64,6 +66,20 @@ public class MessageModel {
 
     @ColumnInfo(name = "isTeacher")
     public int isTeacher;
+
+    @Ignore
+    public boolean isSelected;
+
+    public String getSenderRecieverId() {
+        return senderRecieverId;
+    }
+
+    public void setSenderRecieverId(String senderRecieverId) {
+        this.senderRecieverId = senderRecieverId;
+    }
+
+    @ColumnInfo(name = "senderReciever")
+    public String senderRecieverId;
 
 
     @Ignore
@@ -200,6 +216,31 @@ public class MessageModel {
 
     @Ignore
     public MessageModel(String chatKey,String currentUserId ,String senderName, String senderId,
+                        String senderRecieverId,
+                        String message, String messageTimeInMillis, String messageDate,
+                        String messageTime, int messageType, String pathOrUrl, int isDownloaded,
+                        int isSent, String groupName, int isTeacher,int isAccepted) {
+        this.chatKey = chatKey;
+        this.currentUserId = currentUserId;
+        this.senderName = senderName;
+        this.senderId = senderId;
+        this.senderRecieverId = senderRecieverId;
+        this.message = message;
+        this.messageTimeInMillis = messageTimeInMillis;
+        this.messageDate = messageDate;
+        this.messageTime = messageTime;
+        this.messageType = messageType;
+        this.pathOrUrl = pathOrUrl;
+        this.isDownloaded = isDownloaded;
+
+        this.isSent = isSent;
+        this.groupName = groupName;
+        this.isTeacher = isTeacher;
+        this.isAccepted = isAccepted;
+    }
+
+    @Ignore
+    public MessageModel(String chatKey,String currentUserId ,String senderName, String senderId,
                         String message, String messageTimeInMillis, String messageDate,
                         String messageTime, int messageType, String pathOrUrl, int isDownloaded,
                         int isSent, String groupName, int isTeacher,int isAccepted) {
@@ -221,4 +262,65 @@ public class MessageModel {
         this.isAccepted = isAccepted;
     }
 
+    @Ignore
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Ignore
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.id);
+        dest.writeString(this.chatKey);
+        dest.writeString(this.currentUserId);
+        dest.writeString(this.senderName);
+        dest.writeString(this.senderId);
+        dest.writeString(this.message);
+        dest.writeString(this.messageTimeInMillis);
+        dest.writeString(this.messageDate);
+        dest.writeString(this.messageTime);
+        dest.writeInt(this.messageType);
+        dest.writeString(this.pathOrUrl);
+        dest.writeInt(this.isDownloaded);
+        dest.writeInt(this.isSent);
+        dest.writeString(this.groupName);
+        dest.writeInt(this.isTeacher);
+        dest.writeString(this.senderRecieverId);
+        dest.writeInt(this.isAccepted);
+    }
+
+    @Ignore
+    protected MessageModel(Parcel in) {
+        this.id = in.readInt();
+        this.chatKey = in.readString();
+        this.currentUserId = in.readString();
+        this.senderName = in.readString();
+        this.senderId = in.readString();
+        this.message = in.readString();
+        this.messageTimeInMillis = in.readString();
+        this.messageDate = in.readString();
+        this.messageTime = in.readString();
+        this.messageType = in.readInt();
+        this.pathOrUrl = in.readString();
+        this.isDownloaded = in.readInt();
+        this.isSent = in.readInt();
+        this.groupName = in.readString();
+        this.isTeacher = in.readInt();
+        this.senderRecieverId = in.readString();
+        this.isAccepted = in.readInt();
+    }
+
+    @Ignore
+    public static final Creator<MessageModel> CREATOR = new Creator<MessageModel>() {
+        @Override
+        public MessageModel createFromParcel(Parcel source) {
+            return new MessageModel(source);
+        }
+
+        @Override
+        public MessageModel[] newArray(int size) {
+            return new MessageModel[size];
+        }
+    };
 }

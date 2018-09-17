@@ -11,8 +11,8 @@ import java.util.List;
 @Dao
 public interface UserOrGroupDao {
 
-    @Query("SELECT * FROM UserGroupTable")
-    List<UserOrGroupDetails> getAll();
+    @Query("SELECT * FROM UserGroupTable WHERE isGroup = 0 ")
+    public abstract List<UserOrGroupDetails> getAllSContacts();
 
 /*    @Query("SELECT * FROM messageTable where senderName LIKE  :firstName AND recieverName LIKE :lastName")
     UserOrGroupDetails findByName(String firstName, String lastName);*/
@@ -21,8 +21,8 @@ public interface UserOrGroupDao {
     int countUsers();
 
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    Long insertMessage(UserOrGroupDetails UserOrGroupDetails);
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    Long insertUser(UserOrGroupDetails UserOrGroupDetails);
 
 
     @Delete
@@ -31,8 +31,8 @@ public interface UserOrGroupDao {
     @Query("DELETE FROM messageTable")
     void deleteAll();
 
-    @Query("SELECT * from usergrouptable ORDER BY id ASC")
-    List<UserOrGroupDetails> getAllChat();
+    @Query("SELECT * from usergrouptable ORDER BY name ASC")
+    List<UserOrGroupDetails> getAllUser();
 
     @Query("SELECT * FROM UserGroupTable WHERE isGroup = 1")
     public abstract List<UserOrGroupDetails> getAllGroup();
@@ -49,4 +49,13 @@ public interface UserOrGroupDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public Long insertSubject(UserOrGroupDetails userOrGroupDetails);
+
+    @Query("SELECT * FROM UserGroupTable WHERE isGroup = 1 ")
+    public abstract List<UserOrGroupDetails> getAllSubject();
+
+    @Query("SELECT userId FROM usergrouptable WHERE name = :subjectName LIMIT 1")
+    String getSubjectName( String subjectName);
+
+    @Query("SELECT userId FROM usergrouptable WHERE userId = :userId LIMIT 1")
+    String getUserId( String userId);
 }
