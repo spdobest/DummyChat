@@ -1,13 +1,19 @@
 package android.chat.background;
 
 import android.app.IntentService;
+import android.app.Notification;
+import android.app.PendingIntent;
+import android.chat.R;
 import android.chat.data.PreferenceManager;
 import android.chat.room.AppDatabase;
 import android.chat.room.entity.MessageModel;
+import android.chat.ui.activity.ChatActivity;
 import android.chat.util.Constants;
+import android.chat.util.NotificationHelper;
 import android.chat.util.NotificationUtil;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -30,6 +36,7 @@ public class MessageReadingService extends IntentService {
     private AppDatabase appDatabase;
     private String currentUserId;
     private NotificationUtil notificationUtil;
+    private  NotificationHelper  notificationHelper;
     private String senderRecieverId;
     private String senderRecieverIdRev;
 
@@ -57,6 +64,9 @@ public class MessageReadingService extends IntentService {
         appDatabase = AppDatabase.getAppDatabase(getApplicationContext());
         currentUserId = PreferenceManager.getInstance(getApplicationContext()).getUserId();
         notificationUtil = new NotificationUtil();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notificationHelper = new NotificationHelper(getApplicationContext());
+        }
 
         readFirebaseServer();
 
@@ -95,9 +105,16 @@ public class MessageReadingService extends IntentService {
                             if(messageModel.getSenderRecieverId().equalsIgnoreCase(senderRecieverId) ||
                                     messageModel.getSenderRecieverId().equalsIgnoreCase(senderRecieverIdRev)
                                     ) {
-                                long returnId = appDatabase.getMessageDao().insertMessage(messageModel);
-                                notificationUtil.showStandardHeadsUpNotification(getApplicationContext(),messageModel,senderRecieverId);
 
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+                                    postOreoNotification(123,messageModel);
+                                    PreferenceManager.getInstance(getApplicationContext()).setNotificationId(messageModel.getCurrentUserId());
+                                }
+                                else{
+                                    long returnId = appDatabase.getMessageDao().insertMessage(messageModel);
+                                    notificationUtil.showStandardHeadsUpNotification(getApplicationContext(),messageModel,senderRecieverId);
+
+                                    }
                             }
                         }
                     }
@@ -170,5 +187,31 @@ public class MessageReadingService extends IntentService {
             return MessageReadingService.this;
         }
     }
+
+
+    public void postOreoNotification(int id, MessageModel messageModel) {
+
+        Notification.Builder notificationBuilder = notificationHelper.getNotification1(messageModel.getSenderName(),
+                messageModel.getMessage());
+
+        if (notificationBuilder != null) {
+
+            Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
+
+
+
+            intent.putExtra(Constants.BundleKeys.RECIEVER_ID,messageModel.getCurrentUserId());
+            intent.putExtra(Constants.BundleKeys.RECIEVER_NAME,messageModel.getSenderName());
+            intent.putExtra(Constants.BundleKeys.SENDER_RECIEVER_ID,senderRecieverId);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 1, intent, 0);
+
+
+            notificationBuilder.setContentIntent(pendingIntent);
+
+            notificationHelper.notify(id, notificationBuilder);
+        }
+    }
+
 
 }

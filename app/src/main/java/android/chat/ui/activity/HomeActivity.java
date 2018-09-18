@@ -16,6 +16,7 @@ import android.chat.util.Constants;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
@@ -71,8 +72,12 @@ public class HomeActivity extends AppCompatActivity {
         startService(new Intent(this, MessageReadingService.class));
 
 
-        new FirebaseMessageReadJobService().scheduleJobFirebaseToReadMessage(HomeActivity.this);
-
+        /*if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N) {
+            new FirebaseMessageReadJobService().scheduleRefreshForNaught(HomeActivity.this);
+        }
+        else {*/
+            new FirebaseMessageReadJobService().scheduleJobFirebaseToReadMessage(HomeActivity.this);
+       // }
 
         if ( viewPager != null ) {
             setupViewPager( viewPager );
