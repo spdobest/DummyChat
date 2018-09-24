@@ -22,4 +22,10 @@
     <string name="ok">Okay</string>
     <string name="hint_mobile">Mobile Number</string>
     <string name="submit">Submit</string>
+    <string name="isteacher">Is Teacher</string>
+    <string name="login_using">Login Using</string>
+    <string name="facebook">Facebook</string>
+    <string name="google">Google</string>
+    <string name="we_donot_post">We do not post anything</string>
+    <string name="or_using_email">Or Using Email Id</string>
 </resources>

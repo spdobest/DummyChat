@@ -21,6 +21,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -169,6 +170,11 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
             if (intent.hasExtra(Constants.BundleKeys.GROUP_NAME)) {
                 groupName = intent.getExtras().getString(Constants.BundleKeys.GROUP_NAME);
             }
+        }
+
+        String notId = PreferenceManager.getInstance(this).getNotificationId();
+        if(!TextUtils.isEmpty(groupName)){
+            groupName = notId;
         }
 
 
@@ -452,7 +458,7 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
     private void uploadFileDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("File Upload");
-        builder.setMessage("Are you sure you want to Upload File?");
+        builder.setMessage("Are you sure you want to Upload File ?");
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 
             public void onClick(DialogInterface dialog, int which) {
@@ -501,7 +507,12 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
 
                     showProgress(false);
                     Uri downloadUri = task.getResult();
-                  //  pdfFilePath = downloadUri.toString();
+                    pdfFilePath = downloadUri.toString();
+
+                    Log.i("url:",task.getResult().toString());
+
+                    pdfFilePath = task.getResult().toString();
+
                     sendNewChat("",GroupChatAdapter.ROW_TYPE_FILE);
                     Log.i(TAG, "onComplete: "+downloadUri.getPath());
 
@@ -541,7 +552,6 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
 
             try {
 
-                appDatabase = AppDatabase.getAppDatabase(this);
                 databaseChatReference.child(Constants.FirebaseConstants.TABLE_CHAT).child(insertKey).setValue(MessageModel);
 
                 appDatabase.getMessageDao().insertMessage(MessageModel);
@@ -562,17 +572,37 @@ public class SubjectChatActivity extends BaseActivity implements ChildEventListe
             int size = listModelChat.size();
             listModelChat.addAll(listMessage);
             groupChatAdapter.notifyDataSetChanged();
-            recyclerViewChat.scrollToPosition(listModelChat.size()-1);
+            //	chatAdapter.updateMessageList(listMessageModel);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    recyclerViewChat.smoothScrollToPosition(listModelChat.size()-1);
+                }
+            }, 200);
         }
     }
 
     private void refreshChatList(MessageModel messageModel) {
         if (messageModel != null) {
-            int newMsgPosition = listModelChat.size() - 1;
+            int size = listModelChat.size();
+            listModelChat.add(messageModel);
+            //	chatAdapter.updateMessageList(listMessageModel);
+
+            final int newMsgPosition = listModelChat.size() - 1;
             // Notify recycler view insert one new data.
             groupChatAdapter.notifyItemInserted(newMsgPosition);
             // Scroll RecyclerView to the last message.
             recyclerViewChat.scrollToPosition(newMsgPosition);
+
+
+
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    recyclerViewChat.smoothScrollToPosition(newMsgPosition);
+                }
+            }, 200);
+
         }
     }
 

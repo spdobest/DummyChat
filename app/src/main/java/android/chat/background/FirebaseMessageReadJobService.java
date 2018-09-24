@@ -110,5 +110,4 @@ public class FirebaseMessageReadJobService extends JobService {
             mJobScheduler.schedule(jobInfo);
         }
     }
-
 }

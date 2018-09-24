@@ -31,6 +31,8 @@ public class PreferenceManager {
         String TOKEN = "token";
         String USER_ID = "user_id";
 	    String USER_NAME = "user_name";
+	    String EMAIL_ID = "emailId";
+	    String MOBILENUMBER = "MOBILENUMBER";
 
         String GUEST_SESSION_ID = "guest_id";
       //  String GCM_TOKEN = "gcm_token";
@@ -154,6 +156,22 @@ public class PreferenceManager {
 	public void setUserName(String userName){
 		mEditor.putString( Keys.USER_NAME, userName).commit();
 	}
+
+    public String getEmail(){
+        return mPrefs.getString( Keys.EMAIL_ID, "");
+    }
+
+    public void setEmailId(String emailId){
+        mEditor.putString( Keys.EMAIL_ID, emailId).commit();
+    }
+
+    public String getMobileNumber(){
+        return mPrefs.getString( Keys.MOBILENUMBER, "");
+    }
+
+    public void setMobileNumber(String mobileNumber){
+        mEditor.putString( Keys.MOBILENUMBER, mobileNumber).commit();
+    }
 
     public void setFilterjson(JSONObject filterjson)
     {

@@ -7,6 +7,11 @@
         android:title="Share"/>
 
     <item
+        android:id="@+id/menu_setting"
+        android:icon="@drawable/ic_settings_black_24dp"
+        android:title="Setting"/>
+
+    <item
         android:id="@+id/menu_logout"
         android:icon="@android:drawable/ic_menu_delete"
         android:title="Logout"/>

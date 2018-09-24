@@ -4,10 +4,12 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.chat.R;
+import android.chat.adapter.GroupChatAdapter;
 import android.chat.data.PreferenceManager;
 import android.chat.room.AppDatabase;
 import android.chat.room.entity.MessageModel;
 import android.chat.ui.activity.ChatActivity;
+import android.chat.util.CommonUtils;
 import android.chat.util.Constants;
 import android.chat.util.NotificationHelper;
 import android.chat.util.NotificationUtil;
@@ -90,32 +92,62 @@ public class MessageReadingService extends IntentService {
                 MessageModel messageModel = dataSnapshot.getValue(MessageModel.class);
 
 
-                if (messageModel != null && TextUtils.isEmpty(messageModel.getGroupName())
-                        && messageModel.getSenderId().equalsIgnoreCase(currentUserId)
-                        ) {
+                if (messageModel != null){
 
-                    senderRecieverId = currentUserId+"-"+messageModel.getCurrentUserId();
-                    senderRecieverIdRev = messageModel.getCurrentUserId()+"-"+currentUserId;
+                    if (!TextUtils.isEmpty(messageModel.getSenderId()) && messageModel.getSenderId().equalsIgnoreCase(currentUserId)) {
 
-                    if (messageModel != null && TextUtils.isEmpty(messageModel.getGroupName())
-                            && messageModel.getSenderId().equalsIgnoreCase(currentUserId)
-                            ) {
-                        if(TextUtils.isEmpty(appDatabase.getMessageDao().getChatKey(messageModel.getChatKey()))){
+                        senderRecieverId = currentUserId + "-" + messageModel.getCurrentUserId();
+                        senderRecieverIdRev = messageModel.getCurrentUserId() + "-" + currentUserId;
 
-                            if(messageModel.getSenderRecieverId().equalsIgnoreCase(senderRecieverId) ||
-                                    messageModel.getSenderRecieverId().equalsIgnoreCase(senderRecieverIdRev)
-                                    ) {
+                        if (messageModel != null && TextUtils.isEmpty(messageModel.getGroupName())
+                                && messageModel.getSenderId().equalsIgnoreCase(currentUserId)
+                                ) {
+                            if (TextUtils.isEmpty(appDatabase.getMessageDao().getChatKey(messageModel.getChatKey()))) {
 
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-                                    postOreoNotification(123,messageModel);
-                                    PreferenceManager.getInstance(getApplicationContext()).setNotificationId(messageModel.getCurrentUserId());
-                                }
-                                else{
-                                    long returnId = appDatabase.getMessageDao().insertMessage(messageModel);
-                                    notificationUtil.showStandardHeadsUpNotification(getApplicationContext(),messageModel,senderRecieverId);
+                                if (messageModel.getSenderRecieverId().equalsIgnoreCase(senderRecieverId) ||
+                                        messageModel.getSenderRecieverId().equalsIgnoreCase(senderRecieverIdRev)
+                                        ) {
+
+                                    String lastMessageDate = appDatabase.getMessageDao().getLastMessageDate();
+
+                                    if (CommonUtils.getCurrentDate().equalsIgnoreCase(lastMessageDate) && !TextUtils.isEmpty(lastMessageDate)) {
+                                        appDatabase.getMessageDao().insertMessage(messageModel);
+                                    } else {
+
+                                        long returnId = appDatabase.getMessageDao().insertMessage(messageModel);
+                                    }
+
+
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                        postOreoNotification(123, messageModel);
+                                        PreferenceManager.getInstance(getApplicationContext()).setNotificationId(messageModel.getCurrentUserId());
+                                    } else {
+                                        notificationUtil.showStandardHeadsUpNotification(getApplicationContext(), messageModel, senderRecieverId,false);
 
                                     }
+                                }
                             }
+                        }
+
+                    }
+                    else if(!TextUtils.isEmpty(messageModel.getGroupName())){
+
+                        String lastMessageDate = appDatabase.getMessageDao().getLastMessageDate();
+
+                        if (CommonUtils.getCurrentDate().equalsIgnoreCase(lastMessageDate) && !TextUtils.isEmpty(lastMessageDate)) {
+                            appDatabase.getMessageDao().insertMessage(messageModel);
+                        } else {
+
+                            long returnId = appDatabase.getMessageDao().insertMessage(messageModel);
+                        }
+
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            postOreoNotification(123, messageModel);
+                            PreferenceManager.getInstance(getApplicationContext()).setNotificationId(messageModel.getCurrentUserId());
+                        } else {
+                            notificationUtil.showStandardHeadsUpNotification(getApplicationContext(), messageModel, messageModel.getGroupName(),true);
+
                         }
                     }
 
@@ -196,13 +228,22 @@ public class MessageReadingService extends IntentService {
 
         if (notificationBuilder != null) {
 
-            Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
+            Intent intent = null;
 
 
+
+            if(!TextUtils.isEmpty(messageModel.getGroupName())) {
+                intent = new Intent(getApplicationContext(), ChatActivity.class);
+                intent.putExtra(Constants.BundleKeys.SENDER_RECIEVER_ID,senderRecieverId);
+            }
+            else{
+                intent.putExtra(Constants.BundleKeys.GROUP_NAME,messageModel.getGroupName());
+                PreferenceManager.getInstance(getApplicationContext()).setNotificationId(messageModel.getGroupName());
+            }
 
             intent.putExtra(Constants.BundleKeys.RECIEVER_ID,messageModel.getCurrentUserId());
             intent.putExtra(Constants.BundleKeys.RECIEVER_NAME,messageModel.getSenderName());
-            intent.putExtra(Constants.BundleKeys.SENDER_RECIEVER_ID,senderRecieverId);
+
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 1, intent, 0);
 

@@ -528,6 +528,8 @@ public class FirebaseUtility {
                         PreferenceManager.getInstance(mContext).setUserId(teacherId);
                         PreferenceManager.getInstance(mContext).setUserLoggedIN(true);
                         PreferenceManager.getInstance(mContext).setUserName(teacherData.getName());
+                        PreferenceManager.getInstance(mContext).setEmailId(teacherData.getEmail());
+                        PreferenceManager.getInstance(mContext).setMobileNumber(teacherData.getNumber());
                         if(onFirebasseActionListener!=null){
                             onFirebasseActionListener.onSuccess("");
                         }

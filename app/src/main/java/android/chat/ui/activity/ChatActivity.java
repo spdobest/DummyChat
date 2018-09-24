@@ -23,6 +23,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -155,6 +156,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener,
 
 
 
+
         mediaPlayerSent = MediaPlayer.create(getApplicationContext(),R.raw.sent);//Create MediaPlayer object with MP3 file under res/raw folder
         mediaPlayerRecieve = MediaPlayer.create(getApplicationContext(),R.raw.recieve);//Create MediaPlayer object with MP3 file under res/raw folder
 
@@ -208,6 +210,8 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener,
             CommonUtils.showSnackBar(this, rootLayoutChat, getResources().getString(R.string.no_internet), "Retry", Snackbar.LENGTH_SHORT);
         }
         getChatDataFromDatabase();
+
+        HomeActivity.cancelJob(ChatActivity.this);
 
         notifyChatDatachangedInServer();
 
@@ -501,7 +505,12 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener,
             listMessageModel.addAll(listMessage);
             chatAdapter.notifyDataSetChanged();
             //	chatAdapter.updateMessageList(listMessageModel);
-
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    recyclerViewChat.smoothScrollToPosition(listMessageModel.size()-1);
+                }
+            }, 200);
         }
     }
 
@@ -511,11 +520,21 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener,
             listMessageModel.add(messageModel);
             //	chatAdapter.updateMessageList(listMessageModel);
 
-            int newMsgPosition = listMessageModel.size() - 1;
+            final int newMsgPosition = listMessageModel.size() - 1;
             // Notify recycler view insert one new data.
             chatAdapter.notifyItemInserted(newMsgPosition);
             // Scroll RecyclerView to the last message.
             recyclerViewChat.scrollToPosition(newMsgPosition);
+
+
+
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    recyclerViewChat.smoothScrollToPosition(newMsgPosition);
+                }
+            }, 200);
+
         }
     }
 
@@ -644,7 +663,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener,
 
 
                 if (messageModel != null && TextUtils.isEmpty(messageModel.getGroupName())
-                        && messageModel.getSenderId().equalsIgnoreCase(currentUserId)
+                     &&!TextUtils.isEmpty(messageModel.getSenderId())   && messageModel.getSenderId().equalsIgnoreCase(currentUserId)
                         ) {
                     if(TextUtils.isEmpty(appDatabase.getMessageDao().getChatKey(messageModel.getChatKey()))){
 
@@ -828,5 +847,18 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener,
             }
         }
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        startActivity(new Intent(this,HomeActivity.class));
+        finish();
+    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        HomeActivity.scheduleJob(getApplicationContext());
     }
 }

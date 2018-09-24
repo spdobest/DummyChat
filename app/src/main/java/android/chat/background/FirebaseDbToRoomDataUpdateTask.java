@@ -97,7 +97,7 @@ public class FirebaseDbToRoomDataUpdateTask {
                                     messageModel.getSenderRecieverId().equalsIgnoreCase(senderRecieverIdRev)
                                     ) {
                                 long returnId = appDatabase.getMessageDao().insertMessage(messageModel);
-                                notificationUtil.showStandardHeadsUpNotification(context,messageModel,"");
+                                notificationUtil.showStandardHeadsUpNotification(context,messageModel,"",false);
 
                             }
                         }

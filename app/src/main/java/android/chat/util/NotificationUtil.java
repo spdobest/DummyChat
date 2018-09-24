@@ -7,6 +7,7 @@ import android.chat.R;
 import android.chat.data.PreferenceManager;
 import android.chat.room.entity.MessageModel;
 import android.chat.ui.activity.ChatActivity;
+import android.chat.ui.activity.SubjectChatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -77,7 +78,9 @@ public class NotificationUtil {
         showNotification(context, fourth.build(), 3);
     }
 
-    public void showStandardHeadsUpNotification(Context context,final MessageModel messageModel,String senderRecieverId) {
+    public void showStandardHeadsUpNotification(Context context,final MessageModel messageModel,
+                                                String senderRecieverIdOrGroupName,
+                                                boolean isGroupChat) {
 
 
         /*
@@ -115,7 +118,13 @@ public class NotificationUtil {
 
 */
 
-        String title = messageModel.getSenderName();
+        String title = "";
+        if(isGroupChat) {
+            title = messageModel.getSenderName();
+        }
+        else{
+            title = messageModel.getGroupName();
+        }
         String message = messageModel.getMessage();
 
         NotificationManager notificationManager = (NotificationManager) context
@@ -128,14 +137,27 @@ public class NotificationUtil {
               //  .setLargeIcon(aBitmap)
                 .build();
 
-        Intent intent = new Intent(context, ChatActivity.class);
+        Intent intent = null;
+        if(isGroupChat) {
+            intent = new Intent(context, SubjectChatActivity.class);
+        }
+        else{
+            intent = new Intent(context, ChatActivity.class);
+        }
 
 
         PreferenceManager.getInstance(context).setNotificationId(messageModel.getCurrentUserId());
 
         intent.putExtra(Constants.BundleKeys.RECIEVER_ID,messageModel.getCurrentUserId());
         intent.putExtra(Constants.BundleKeys.RECIEVER_NAME,messageModel.getSenderName());
-        intent.putExtra(Constants.BundleKeys.SENDER_RECIEVER_ID,senderRecieverId);
+        if(isGroupChat) {
+            intent.putExtra(Constants.BundleKeys.GROUP_NAME,senderRecieverIdOrGroupName);
+            PreferenceManager.getInstance(context).setNotificationId(senderRecieverIdOrGroupName);
+        }
+        else{
+            intent.putExtra(Constants.BundleKeys.SENDER_RECIEVER_ID,senderRecieverIdOrGroupName);
+        }
+
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 1, intent, 0);
 

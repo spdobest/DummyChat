@@ -53,6 +53,9 @@
         <service android:name=".background.FirebaseMessageReadJobService"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
+        <service android:name=".scheduler.MyJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
     </application>
 
 </manifest>
